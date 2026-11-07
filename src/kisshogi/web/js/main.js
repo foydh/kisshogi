@@ -444,7 +444,7 @@ function setupBoard() {
       board: $("#board"),
       blackHand: $("#blackHand"),
       whiteHand: $("#whiteHand"),
-      handStack: $("#handStack"),
+      boardFrame: $("#boardFrame"),
       coordinates: config.ui?.coordinates,
     },
     {

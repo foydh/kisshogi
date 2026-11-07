@@ -22,7 +22,8 @@ Shift_JIS export text.
 - `game-controller.js` — Record, clocks, results, undo, branch truncation,
   pause/resume.
 - `clock-controller.js` — per-side byoyomi/increment clock.
-- `board-view.js` — DOM board/hands, highlights, coordinates, hand-tray order.
+- `board-view.js` — DOM board/hands; white hand on the left/top, black hand
+  on the right/bottom (swapped when flipped); highlights and coordinates.
 - `mini-board.js` — read-only analysis board with the best-move highlight.
 - `engine-controller.js` — black/white engine turns and Ponder.
 - `analysis-controller.js` — live MultiPV and full-game scan; keeps the last
@@ -112,6 +113,8 @@ packaged. Themes are `classic`, `dark`, `green`, or `paper`.
   child dies) for the page to call `/api/native-ready`; on failure it kills the
   child and opens the browser. Closing the native window exits the child; the
   parent shuts down.
+- Release builds include pywebview; Linux bundles the GI typelib but uses the
+  system WebKitGTK shared library, while Windows uses WebView2.
 - Browser: page calls `/api/heartbeat` every 5s; `pagehide` schedules a 5s
   shutdown; 120s without heartbeat also shuts down. Quit button calls
   `/api/quit`.

@@ -213,10 +213,12 @@ def layout_metrics(page) -> dict:
     return page.evaluate(
         """() => {
             const board = document.querySelector('#board').getBoundingClientRect();
-            const hands = document.querySelector('#handStack').getBoundingClientRect();
+            const white = document.querySelector('#whiteHand').getBoundingClientRect();
+            const black = document.querySelector('#blackHand').getBoundingClientRect();
             return {
-                board: {x: board.x, y: board.y, width: board.width, height: board.height},
-                hands: {x: hands.x, y: hands.y, width: hands.width, height: hands.height},
+                board: {x: board.x, y: board.y, right: board.right, bottom: board.bottom, width: board.width, height: board.height},
+                white: {x: white.x, y: white.y, right: white.right, bottom: white.bottom},
+                black: {x: black.x, y: black.y, right: black.right, bottom: black.bottom},
                 inner: window.innerHeight,
             };
         }"""
@@ -238,8 +240,21 @@ def check_initial_board(browser) -> None:
                 page.wait_for_timeout(120)
                 no_page_scroll(page)
                 metrics = layout_metrics(page)
-                assert metrics["board"]["y"] + metrics["board"]["height"] <= metrics["inner"] + 1, metrics
-                assert metrics["hands"]["x"] >= metrics["board"]["x"] + metrics["board"]["width"] - 1, metrics
+                assert metrics["board"]["bottom"] <= metrics["inner"] + 1, metrics
+                # White (top player) sits on the left, black (bottom player) on
+                # the right: each hand tray is on its own player's right side.
+                assert metrics["white"]["right"] <= metrics["board"]["x"] + 1, metrics
+                assert metrics["black"]["x"] >= metrics["board"]["right"] - 1, metrics
+                assert metrics["white"]["y"] < metrics["black"]["y"], metrics
+
+            page.click("#flipBtn")
+            page.wait_for_timeout(150)
+            flipped = layout_metrics(page)
+            assert flipped["black"]["right"] <= flipped["board"]["x"] + 1, flipped
+            assert flipped["white"]["x"] >= flipped["board"]["right"] - 1, flipped
+            assert flipped["black"]["y"] < flipped["white"]["y"], flipped
+            page.click("#flipBtn")
+            page.wait_for_timeout(150)
 
             clip = page.evaluate("getComputedStyle(document.querySelector('.piece')).clipPath")
             assert clip.count(",") == 4, clip  # five vertices, not a hexagon

@@ -64,18 +64,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
+        if: runner.os == 'Windows'
         with:
           python-version: "3.12"
-      - name: Install
+      - name: Install Linux native dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-gi python3-venv gir1.2-gtk-3.0 libglib2.0-bin
+          sudo apt-get install -y gir1.2-webkit2-4.1 || sudo apt-get install -y gir1.2-webkit2-4.0
+      - name: Install (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          python3 -m venv --system-site-packages .venv-build
+          .venv-build/bin/python -m pip install -U pip
+          .venv-build/bin/pip install -e '.[native]'
+          .venv-build/bin/pip install pyinstaller
+      - name: Install (Windows)
+        if: runner.os == 'Windows'
         run: |
           python -m pip install -U pip
-          pip install -e .
+          pip install -e ".[native]"
           pip install pyinstaller
-      - name: Build onefile
+      - name: Build onefile (Linux)
+        if: runner.os == 'Linux'
+        run: .venv-build/bin/pyinstaller packaging/kisshogi.spec --noconfirm --clean
+      - name: Build onefile (Windows)
+        if: runner.os == 'Windows'
         run: pyinstaller packaging/kisshogi.spec --noconfirm --clean
       - name: Smoke (Linux)
         if: runner.os == 'Linux'
-        run: python scripts/smoke.py dist/kisshogi
+        run: .venv-build/bin/python scripts/smoke.py dist/kisshogi
       - name: Smoke (Windows)
         if: runner.os == 'Windows'
         run: python scripts/smoke.py dist/kisshogi.exe

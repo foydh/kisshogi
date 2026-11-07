@@ -15,7 +15,7 @@ Kisshogi 是一款遵循 KISS 原则的小型将棋 GUI，面向本地对局与 
 - 引擎分析（MultiPV、实时 info、整局解析、SVG 评估曲线）；停止后保留最后结果，
   小棋盘显示最佳着法，并可直接走到主棋盘。
 - 暂停/恢复对局，计时不走。
-- 传统右侧驹台、四种主题、棋盘大小自适应。
+- 白方驹台在左上、黑方在右下的传统布局；四种主题；棋盘大小自适应。
 - 设置中显示本机配置文件路径。
 - KIF/KI2/CSA 读取；KIF/KI2/CSA/SFEN 导出；支持 UTF-8 与 Shift_JIS。
 - 局面编辑器（棋盘、持驹、手番、SFEN）。
@@ -25,7 +25,7 @@ Kisshogi 是一款遵循 KISS 原则的小型将棋 GUI，面向本地对局与 
 - 最大手数可配置（0 = 不限）。
 - 默认原生窗口（pywebview 可用时），失败自动回退浏览器。
 
-## 安装
+## 从源码安装
 
 请始终使用虚拟环境，不要用系统 Python 执行 pip。
 
@@ -62,6 +62,9 @@ kisshogi
 原生窗口不可用时自动回退浏览器；`--native` 强制原生，失败会给出安装提示。
 Linux 下原生窗口默认使用软件 OpenGL，以便在虚拟机和远程桌面上也能运行；可设置
 `LIBGL_ALWAYS_SOFTWARE=0` 关闭。
+
+GitHub Release 的二进制现在包含 pywebview，会优先打开原生窗口；Linux 使用系统
+PyGObject/WebKitGTK 4.1，Windows 使用 WebView2 运行时。
 
 ## 运行与退出
 

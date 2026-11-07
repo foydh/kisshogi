@@ -19,7 +19,8 @@ play and USI engine testing.
   evaluation graph. Analysis keeps its last output after stopping, shows the
   best move on a mini board, and can play that move onto the main board.
 - Pause and resume a game without resetting the clocks.
-- Traditional right-side hand trays and four UI themes.
+- Hand trays on each player's right side (white left, black right) and four
+  UI themes.
 - The settings panel shows the local configuration file path.
 - KIF / KI2 / CSA import; UTF-8/Shift_JIS input; KIF / KI2 / CSA / SFEN export
   in UTF-8 or Shift_JIS.
@@ -84,9 +85,10 @@ to opt out.
 
 ## Prebuilt binaries
 
-The GitHub release binaries use the **browser**. Install from source with the
-`native` extra if you want a desktop window. The launcher always tries the
-native window first when pywebview is available.
+The GitHub release binaries include pywebview and try the **native window
+first**, then fall back to the browser. On Linux the native window uses the
+system PyGObject and WebKitGTK 4.1 libraries. On Windows it uses the WebView2
+runtime.
 
 ## Run
 
@@ -94,7 +96,6 @@ native window first when pywebview is available.
 kisshogi                  # native window, fallback to browser
 kisshogi --browser        # force browser
 kisshogi --native         # require native window
-kisshogi --port 8765
 ```
 
 Closing the native window exits Kisshogi. In browser mode, closing the tab

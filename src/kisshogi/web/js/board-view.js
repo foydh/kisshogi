@@ -46,11 +46,11 @@ export function squareName(square) {
 }
 
 export class BoardView {
-  constructor({ board, blackHand, whiteHand, handStack, coordinates }, { onSquare, onHand }) {
+  constructor({ board, blackHand, whiteHand, boardFrame, coordinates }, { onSquare, onHand }) {
     this.board = board;
     this.blackHand = blackHand;
     this.whiteHand = whiteHand;
-    this.handStack = handStack;
+    this.boardFrame = boardFrame;
     this.coordinates = coordinates;
     this.onSquare = onSquare;
     this.onHand = onHand;
@@ -135,7 +135,7 @@ export class BoardView {
     this._renderHand(this.blackHand, position.hand(Color.BLACK), Color.BLACK, flip, state);
     this._renderHand(this.whiteHand, position.hand(Color.WHITE), Color.WHITE, flip, state);
     this.board.classList.toggle("flipped", flip);
-    this.handStack?.classList.toggle("flipped", flip);
+    this.boardFrame?.classList.toggle("flipped", flip);
   }
 
   _renderHand(el, hand, color, flip, state) {

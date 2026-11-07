@@ -4,7 +4,8 @@
 
 - Target: `foydh/kisshogi`.
 - Default branch: `main`.
-- Tag for the first release: `v0.1.0`.
+- First release: `v0.1.0` (browser fallback).
+- Current release: `v0.1.1` (native window first, browser fallback).
 
 ## Git setup (local only)
 
@@ -22,8 +23,8 @@ git push -u origin main
 ## Release
 
 ```bash
-git tag -a v0.1.0 -m "Kisshogi 0.1.0"
-git push origin v0.1.0
+git tag -a v0.1.1 -m "Kisshogi 0.1.1"
+git push origin v0.1.1
 ```
 
 `.github/workflows/release.yml` verifies the tag, builds wheel/sdist, builds
@@ -32,30 +33,23 @@ publishes a GitHub release.
 
 ## Status
 
-`v0.1.0` was published on 2026-11-08. Assets: wheel, sdist,
-`kisshogi-v0.1.0-linux-x86_64.tar.gz`, `kisshogi-v0.1.0-windows-x86_64.zip`,
-and `SHA256SUMS.txt`. The released Linux binary was downloaded and
-smoke-tested; the Windows zip was inspected (it contains `kisshogi.exe` and
-docs only).
+- `v0.1.0` was published on 2026-11-08 with browser-fallback binaries.
+- `v0.1.1` is the native-first release. The Linux artifact is built on
+  Ubuntu 22.04 with system PyGObject/WebKitGTK and is about 48 MB; the Windows
+  artifact includes pywebview/pythonnet and uses the WebView2 runtime.
 
-## Post-0.1.0
+## Packaging decision (0.1.1)
 
-`main` contains the pause/analysis/theme/layout improvements and the native
-software-OpenGL launcher fix. Bump the version and tag `v0.1.1` when a new
-release is wanted; the release workflow is unchanged.
-
-## Packaging decision (0.1.0)
-
-- The PyInstaller spec excludes pywebview/GI/PIL to keep one cross-platform
-  binary small and portable. Release binaries therefore use the browser
-  fallback; this is the chosen 0.1.0 behavior, not a build accident.
-- A native window is available when installing from source with the `native`
-  extra and the platform dependencies.
-- A separate **native Windows bundle** is the best candidate for the first
-  native release. It needs WebView2 plus pythonnet/clr packaging and must be
-  built and tested on Windows; adding it blind to the current workflow would
-  not be verifiable from this environment.
-- Windows packaging has not been executed in this environment; CI will be the
-  first Windows build.
+- The PyInstaller spec includes pywebview and (on Linux) PyGObject/WebKit2
+  typelib support. Both binaries try the native window first and fall back to
+  the browser if it cannot start.
+- **Linux**: the binary bundles the GI/Gtk runtime pieces but deliberately uses
+  the system `libwebkit2gtk` shared libraries. Bundling WebKitGTK produced a
+  400+ MB onefile tied to one distribution's library set. A source install and
+  the release binary therefore both need PyGObject + WebKitGTK 4.1.
+- The launcher forces software OpenGL on Linux (`LIBGL_ALWAYS_SOFTWARE=1`), so
+  VMs and remote desktops work without a GPU.
+- **Windows**: pywebview + pythonnet are bundled; the WebView2 runtime is
+  required (present on most Windows 10/11 systems).
 - No code signing; Windows SmartScreen may warn.
 - No engine, config, log, or absolute path is included in artifacts.

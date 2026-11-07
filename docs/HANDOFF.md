@@ -23,6 +23,8 @@
   `WEBKIT_DISABLE_DMABUF_RENDERER=1` by default. Native launch works in this
   container with those defaults; a real desktop should still be checked for
   window-close behavior.
+- Release binaries bundle pywebview and use the native window first. Linux
+  relies on system PyGObject/WebKitGTK 4.1; Windows relies on WebView2.
 
 ## Quick commands
 
@@ -41,12 +43,13 @@ with `?debug` (used by `scripts/ui_check.py`).
 
 ## Immediate next steps
 
-1. `main` contains post-`v0.1.0` UI improvements. Tag `v0.1.1` (after CI)
-   if a new release is wanted; the release workflow is unchanged.
-2. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
-   the current onefile binaries intentionally use the browser fallback.
-3. Validate the native window close behavior and the Windows binary on real
-   desktops.
+1. Validate the native window close behavior and the Windows binary on real
+   desktops; the release workflow only builds them.
+2. The release spec intentionally uses system WebKitGTK shared libraries on
+   Linux to keep the onefile near 48 MB. Do not "fix" this by bundling
+   libwebkit2gtk: it produced a 400+ MB, distribution-specific binary.
+3. Keep the browser fallback; it is what runs when the platform native stack is
+   missing.
 
 ## Important constraints
 

@@ -36,8 +36,9 @@ restart, batch games with Ponder, and the Quit flow.
   jishogi adjudication, max moves.
 - Board/hands UI, promotion dialog, clocks, status, coordinates.
 - Pause/resume freezes the clocks and engine turns without discarding the game.
-- Traditional right-side hand trays; five-sided piece shape; board sized to fit
-  the viewport at 1280x800/1366x768/1600x900 without page scrolling.
+- Hand trays on each player's right side (white top-left, black bottom-right);
+  five-sided piece shape; board sized to fit the viewport at
+  1280x800/1366x768/1600x900 without page scrolling.
 - Four themes (classic, dark, green, paper), persisted in the local config.
 - The settings panel shows the local config file path and can copy it.
 - Quit shows a clean stopped overlay instead of a false "server not responding"
@@ -52,10 +53,12 @@ restart, batch games with Ponder, and the Quit flow.
   sections were removed or moved to `docs/`.
 - Batch EvE: color swap, start SFEN cycling, summary, CSV.
 - i18n en/zh-CN/ja; original CSS art; bundled Noto CJK subsets.
-- CI workflows and PyInstaller spec; 8.2 MB Linux onefile smoke-tested.
+- CI workflows and PyInstaller spec.
 - GitHub CI is green on Python 3.10/3.12 for Ubuntu and Windows, JavaScript, and
-  wheel/sdist. `v0.1.0` is published with wheel, sdist, Linux tar.gz, Windows
-  zip, and SHA256SUMS.
+  wheel/sdist. `v0.1.0` was published with browser-fallback binaries.
+- The release spec now bundles pywebview and prefers the native window. The
+  Linux onefile is ~48 MB, uses the system WebKitGTK shared libraries, and was
+  built and launched natively here; the browser remains the fallback.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
@@ -80,15 +83,13 @@ restart, batch games with Ponder, and the Quit flow.
 
 ## Known gaps / next work
 
-1. **Native release packaging**: the 0.1.0 binaries stay browser-fallback (see
-   `RELEASE.md`). A separate Windows native bundle is the best candidate but
-   needs WebView2/pythonnet packaging and testing on Windows.
-2. **Native pywebview** window close should still be checked on a real
+1. **Native pywebview** window close should still be checked on a real
    Linux/Windows desktop.
-3. **Windows binary** is built by CI and packaged, but has not been launched on
-   Windows here.
-4. **Release**: `v0.1.0` is published; `main` now contains the UI improvements
-   described above, so a `v0.1.1` tag/release is pending if desired.
+2. **Windows binary** is built by CI and packaged with pywebview/pythonnet, but
+   has not been launched on Windows here.
+3. **Release**: `v0.1.1` packages the native-first binaries; `v0.1.0` remains
+   the browser-fallback release. Linux needs system PyGObject + WebKitGTK 4.1;
+   Windows needs the WebView2 runtime.
 
 ## Handoff
 

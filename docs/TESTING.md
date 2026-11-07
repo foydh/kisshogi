@@ -74,9 +74,20 @@ The current Linux PyInstaller onefile is ~8.2 MB and serves `/api/health` and
 the token-injected index. It is built without pywebview, so it uses the browser
 fallback.
 
+## Native release build
+
+- Linux: `pyinstaller packaging/kisshogi.spec` with system PyGObject/WebKitGTK
+  4.1. The checked-in spec uses a thin WebKit2 typelib hook and relies on the
+  system `libwebkit2gtk`; the resulting onefile is ~48 MB and was launched
+  natively here.
+- Windows: the workflow installs `.[native]` (pywebview + pythonnet) and builds
+  the same spec; WebView2 is required at runtime.
+- `python scripts/smoke.py dist/kisshogi` still verifies the server with
+  `--no-browser`, which is independent of the native window.
+
 ## Manual checks still recommended
 
 - Native window close exits all processes on a real desktop.
-- Windows binary.
+- Windows binary and WebView2 runtime.
 - Native window on a real Linux/Windows desktop. The launcher forces software
   OpenGL on Linux, which was verified in this container.

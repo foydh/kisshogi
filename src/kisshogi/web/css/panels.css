@@ -8,11 +8,12 @@
 
 .analysis-board-panel { display: flex; gap: 10px; align-items: flex-start; margin: 10px 0; }
 .mini-board {
-  flex: 0 0 168px; width: 168px; aspect-ratio: 1; display: grid; grid-template-columns: repeat(9, 1fr);
+  flex: 0 0 168px; width: 168px; max-width: 168px; aspect-ratio: 1; display: grid;
+  grid-template-columns: repeat(9, 1fr); grid-template-rows: repeat(9, 1fr);
   border: 2px solid var(--board-line); background: var(--board); box-shadow: var(--board-inset);
 }
 .mini-square {
-  position: relative; display: grid; place-items: center;
+  position: relative; display: grid; place-items: center; min-width: 0; min-height: 0;
   border-right: 1px solid var(--board-line); border-bottom: 1px solid var(--board-line);
 }
 .mini-square:nth-child(9n) { border-right: 0; }
@@ -102,8 +103,8 @@
   .time-head, .time-row { grid-template-columns: 44px 1fr 1fr 1fr 72px; }
   .button-grid { grid-template-columns: 1fr; }
   .board-frame { gap: 4px; }
-  .hand-stack { flex-basis: 70px; }
-  .board { max-width: calc(100% - 78px); }
-  .mini-board { flex-basis: 132px; width: 132px; }
+  .hand-row { flex-basis: 66px; min-height: 60px; }
+  .board { max-width: calc(100% - 140px); }
+  .mini-board { flex-basis: 132px; width: 132px; max-width: 132px; }
   .analysis-board-panel { gap: 8px; }
 }
