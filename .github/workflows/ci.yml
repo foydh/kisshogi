@@ -64,3 +64,31 @@ jobs:
           assert (root / "assets" / "fonts" / "pieces.woff2").is_file()
           print("wheel assets ok")
           PY
+
+  native-package:
+    name: Linux native package
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-gi python3-venv gir1.2-gtk-3.0 libglib2.0-bin
+          sudo apt-get install -y gir1.2-webkit2-4.1 || sudo apt-get install -y gir1.2-webkit2-4.0
+      - name: Build onefile
+        run: |
+          python3 -m venv --system-site-packages .venv-build
+          .venv-build/bin/python -m pip install -U pip
+          .venv-build/bin/pip install -e '.[native]'
+          .venv-build/bin/pip install pyinstaller
+          .venv-build/bin/pyinstaller packaging/kisshogi.spec --noconfirm --clean
+      - name: Smoke
+        run: |
+          set +e
+          .venv-build/bin/python scripts/smoke.py dist/kisshogi > smoke.log 2>&1
+          code=$?
+          cat smoke.log
+          if [ $code -ne 0 ]; then
+            echo "::error::$(tail -c 1800 smoke.log | tr '\n' ' ')"
+            exit $code
+          fi
