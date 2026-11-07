@@ -1,0 +1,22 @@
+name: Cleanup old releases
+
+on:
+  push:
+    paths:
+      - .github/workflows/cleanup-old-releases.yml
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete old releases and tags
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for tag in v0.1.0 v0.1.1 v0.1.2; do
+            echo "deleting release/tag $tag"
+            gh release delete "$tag" --yes --cleanup-tag || echo "no release for $tag"
+          done
