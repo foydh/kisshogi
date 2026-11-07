@@ -92,3 +92,29 @@ jobs:
             echo "::error::$(tail -c 1800 smoke.log | tr '\n' ' ')"
             exit $code
           fi
+
+  windows-native-package:
+    name: Windows native package
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build onefile
+        run: |
+          python -m pip install -U pip
+          pip install -e ".[native]"
+          pip install pyinstaller
+          pyinstaller packaging/kisshogi.spec --noconfirm --clean
+      - name: Smoke
+        shell: pwsh
+        run: |
+          python scripts/smoke.py dist/kisshogi.exe *> smoke.log
+          $code = $LASTEXITCODE
+          Get-Content smoke.log
+          if ($code -ne 0) {
+            $tail = (Get-Content smoke.log -Tail 40) -join " "
+            Write-Output "::error::$tail"
+            exit $code
+          }
