@@ -35,17 +35,18 @@ publishes a GitHub release.
 
 ## Status
 
-- `v0.1.0` was published on 2026-11-08 with browser-fallback binaries.
-- `v0.1.1` was a failed native-first attempt on Linux (bundled GLib/WebKit
-  mismatch); it is superseded by `v0.1.2`.
-- `v0.1.2` is built on Ubuntu 24.04 so the bundled GLib/Gtk libraries match
-  WebKitGTK 4.1. The Linux artifact is about 48 MB (34 MB compressed) and the
-  Windows zip is about 13 MB; both include pywebview and use the native window
-  first. The released Linux binary was smoke-tested and launched natively.
-- `v0.1.3` publishes four binary assets: native and `-portable` browser-only
-  builds for Linux and Windows. The portable builds are ~8 MB.
+- `v0.1.3` is the only published release. Assets: wheel, sdist, and four
+  binaries:
+  - `linux-x86_64` native (~48 MB, 34 MB compressed)
+  - `linux-x86_64-portable` browser-only (~8 MB, 6.7 MB compressed)
+  - `windows-x86_64` native
+  - `windows-x86_64-portable` browser-only
+- The released Linux native and portable artifacts were downloaded and
+  verified; the native window stayed up and the portable build correctly has
+  no native window.
+- Older releases `v0.1.0`, `v0.1.1` and `v0.1.2` and their tags were deleted.
 
-## Packaging decision (0.1.2)
+## Packaging decision (0.1.3)
 
 - `packaging/kisshogi.spec` includes pywebview and (on Linux) PyGObject/WebKit2
   typelib support. These native builds try the native window first and fall

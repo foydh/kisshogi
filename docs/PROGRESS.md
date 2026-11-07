@@ -60,11 +60,11 @@ restart, batch games with Ponder, and the Quit flow.
 - The release spec bundles pywebview and prefers the native window. The Linux
   onefile is ~48 MB, uses the system WebKitGTK shared libraries, and was built
   and launched natively here; the browser remains the fallback.
-- `v0.1.2` is the published native-first release (Linux built on Ubuntu
-  24.04, Windows with WebView2). `v0.1.1` on Linux bundled an older GLib that
-  conflicted with system WebKitGTK 4.1 and is superseded.
-- `v0.1.3` adds the Analysis mode, the corrected piece/king rendering, and
-  `-portable` browser-only artifacts alongside the native ones.
+- `v0.1.3` is the current release: native-first and `-portable` browser-only
+  artifacts for Linux and Windows. The Linux native binary is built on Ubuntu
+  24.04 with WebKitGTK 4.1; Windows uses WebView2.
+- Older releases (`v0.1.0`, `v0.1.1`, `v0.1.2`) and their tags were removed;
+  `v0.1.3` is the only published release.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
@@ -78,10 +78,10 @@ restart, batch games with Ponder, and the Quit flow.
   impasse, pause + theme + config path, analysis mode, analysis panel, options
   restart, batch Ponder, Quit).
 - `python scripts/smoke.py dist/kisshogi`: OK.
-- `v0.1.2` released Linux artifact downloaded: server smoke OK and the native
-  window stayed up (software OpenGL). The 34 MB tar.gz and 13 MB Windows zip
-  contain only the binary plus the expected docs; neither archive contains
-  engines, books, configs, or logs.
+- `v0.1.3` released Linux artifacts downloaded: native smoke OK and its window
+  stayed up (software OpenGL); the portable build smoke-tested OK and correctly
+  has no native window. The 34 MB native tar.gz and 6.7 MB portable tar.gz
+  contain only the binary plus docs; no engines, books, configs, or logs.
 - Playwright UI checks use `tests/ui/fake_engine.py`, a deterministic USI test
   double that follows a fixed legal opening and logs protocol traffic.
 - Native launch in this container stays up with software OpenGL enabled by the
@@ -94,10 +94,9 @@ restart, batch games with Ponder, and the Quit flow.
    Linux/Windows desktop.
 2. **Windows binary** is built by CI and packaged with pywebview/pythonnet, but
    has not been launched on Windows here.
-3. **Release**: `v0.1.2` packages the native-first binaries; `v0.1.0`
-   remains the browser-fallback release. Linux needs system PyGObject +
-   WebKitGTK 4.1 and glibc 2.39+ (Ubuntu 24.04 build); Windows needs the
-   WebView2 runtime.
+3. **Release**: `v0.1.3` is the only release, with native and portable
+   variants. Linux native needs system PyGObject + WebKitGTK 4.1 and glibc
+   2.39+ (Ubuntu 24.04 build); Windows native needs the WebView2 runtime.
 
 ## Handoff
 
