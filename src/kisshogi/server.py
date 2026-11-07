@@ -10,6 +10,7 @@ import threading
 import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from importlib import resources
 from pathlib import Path
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
@@ -48,7 +49,7 @@ class Application:
         self._shutting_down = False
         self.stop_event = threading.Event()
         self.native_ready = threading.Event()
-        self.web_root = Path(str(__import__("importlib.resources", fromlist=["files"]).files("kisshogi").joinpath("web")))
+        self.web_root = Path(str(resources.files("kisshogi").joinpath("web")))
 
     @property
     def port(self) -> int:
