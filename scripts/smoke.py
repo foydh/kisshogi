@@ -6,12 +6,34 @@ from __future__ import annotations
 import argparse
 import http.client
 import json
+import os
 import socket
 import subprocess
 import sys
 import tempfile
 import time
 from pathlib import Path
+
+
+def stop_process(proc: subprocess.Popen) -> None:
+    if proc.poll() is not None:
+        return
+    if os.name == "nt":
+        # PyInstaller onefile can leave a child running after terminating the
+        # bootloader, which also keeps the log file handle open.
+        subprocess.run(
+            ["taskkill", "/F", "/T", "/PID", str(proc.pid)],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+    else:
+        proc.terminate()
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait(timeout=5)
 
 
 def free_port() -> int:
@@ -27,7 +49,7 @@ def main() -> int:
     parser.add_argument("--startup-timeout", type=float, default=60.0)
     args = parser.parse_args()
     port = args.port or free_port()
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         config = Path(tmp) / "config.json"
         log_path = Path(tmp) / "process.log"
         with open(log_path, "w", encoding="utf-8") as log:
@@ -68,11 +90,7 @@ def main() -> int:
                 print(f"smoke ok: {args.binary} on port {port}")
                 return 0
             except Exception:
-                try:
-                    proc.terminate()
-                    proc.wait(timeout=5)
-                except Exception:  # noqa: BLE001
-                    proc.kill()
+                stop_process(proc)
                 try:
                     output = log_path.read_text(encoding="utf-8", errors="replace")
                 except OSError:
@@ -80,11 +98,7 @@ def main() -> int:
                 print(f"smoke failed; binary output:\n{output}", file=sys.stderr)
                 raise
             finally:
-                try:
-                    proc.terminate()
-                    proc.wait(timeout=5)
-                except Exception:  # noqa: BLE001
-                    proc.kill()
+                stop_process(proc)
 
 
 if __name__ == "__main__":
