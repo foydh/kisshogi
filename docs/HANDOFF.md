@@ -33,8 +33,8 @@ python -m kisshogi --no-browser --port 8765
 
 ## Immediate next steps
 
-1. Initialize git (`main`), add/commit with local author identity, create
-   `foydh/kisshogi`, push, verify CI.
+1. The local repository is initialized on `main` with commit `14d2e65`.
+   Create `foydh/kisshogi` on GitHub, add the remote, push, and verify CI.
 2. Run the release workflow by pushing `v0.1.0`; inspect wheel, sdist and both
    binaries.
 3. Decide native release packaging (Windows native is the best candidate).

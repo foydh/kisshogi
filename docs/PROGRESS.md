@@ -61,8 +61,9 @@ a two-game EvE batch.
    friendlier inline explanation and more UI tests.
 5. **Options UI**: probe/render tested; changing options and restarting the
    engine through the UI should get an end-to-end test.
-6. **GitHub**: repository is not initialized/pushed yet. Workflows have not run
-   on GitHub. Tag and release are pending.
+6. **GitHub**: local repository initialized and committed as `14d2e65`
+   (`feat: initial Kisshogi 0.1.0`), but not yet pushed to `foydh/kisshogi`.
+   Workflows have not run on GitHub. Tag and release are pending.
 7. **Windows**: PyInstaller spec is written but not executed on Windows here.
 8. **Native pywebview** must be validated on a real Linux/Windows desktop; the
    sandbox's WebKit/MESA issue is environmental.
