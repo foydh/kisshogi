@@ -59,8 +59,9 @@ restart, batch games with Ponder, and the Quit flow.
 - The release spec bundles pywebview and prefers the native window. The Linux
   onefile is ~48 MB, uses the system WebKitGTK shared libraries, and was built
   and launched natively here; the browser remains the fallback.
-- `v0.1.2` is the native-first release. `v0.1.1` on Linux bundled an older
-  GLib that conflicted with system WebKitGTK 4.1 and is superseded.
+- `v0.1.2` is the published native-first release (Linux built on Ubuntu
+  24.04, Windows with WebView2). `v0.1.1` on Linux bundled an older GLib that
+  conflicted with system WebKitGTK 4.1 and is superseded.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
@@ -74,9 +75,10 @@ restart, batch games with Ponder, and the Quit flow.
   impasse, pause + theme + config path, analysis panel, options restart, batch
   Ponder, Quit).
 - `python scripts/smoke.py dist/kisshogi`: OK.
-- Released Linux artifact downloaded and smoke-tested from the GitHub release:
-  OK. The Windows zip contains only `kisshogi.exe` plus the expected docs;
-  neither archive contains engines, books, configs, or logs.
+- `v0.1.2` released Linux artifact downloaded: server smoke OK and the native
+  window stayed up (software OpenGL). The 34 MB tar.gz and 13 MB Windows zip
+  contain only the binary plus the expected docs; neither archive contains
+  engines, books, configs, or logs.
 - Playwright UI checks use `tests/ui/fake_engine.py`, a deterministic USI test
   double that follows a fixed legal opening and logs protocol traffic.
 - Native launch in this container stays up with software OpenGL enabled by the

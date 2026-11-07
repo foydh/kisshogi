@@ -39,8 +39,9 @@ publishes a GitHub release.
 - `v0.1.1` was a failed native-first attempt on Linux (bundled GLib/WebKit
   mismatch); it is superseded by `v0.1.2`.
 - `v0.1.2` is built on Ubuntu 24.04 so the bundled GLib/Gtk libraries match
-  WebKitGTK 4.1. The Linux artifact is about 42 MB compressed; the Windows
-  artifact includes pywebview/pythonnet and uses the WebView2 runtime.
+  WebKitGTK 4.1. The Linux artifact is about 48 MB (34 MB compressed) and the
+  Windows zip is about 13 MB; both include pywebview and use the native window
+  first. The released Linux binary was smoke-tested and launched natively.
 
 ## Packaging decision (0.1.2)
 

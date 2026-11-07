@@ -46,8 +46,10 @@ with `?debug` (used by `scripts/ui_check.py`).
 1. Validate the native window close behavior and the Windows binary on real
    desktops; the release workflow only builds them.
 2. The release spec intentionally uses system WebKitGTK shared libraries on
-   Linux to keep the onefile near 48 MB. Do not "fix" this by bundling
-   libwebkit2gtk: it produced a 400+ MB, distribution-specific binary.
+   Linux at runtime and is built on Ubuntu 24.04 (glibc 2.39+). Do not
+   "fix" this by bundling libwebkit2gtk: it produced a 400+ MB,
+   distribution-specific binary. Building on 22.04 also produced an older GLib
+   that conflicted with WebKitGTK 4.1.
 3. Keep the browser fallback; it is what runs when the platform native stack is
    missing.
 
