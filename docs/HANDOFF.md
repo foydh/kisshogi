@@ -25,8 +25,8 @@
   window-close behavior.
 - Release binaries bundle pywebview and use the native window first. Linux
   relies on system PyGObject/WebKitGTK 4.1; Windows relies on WebView2. The
-  release also ships `-portable` browser-only assets. `v0.1.3` is the only
-  published release; older releases/tags were removed.
+  release also ships `-portable` browser-only assets. `v1.0.0` is the only
+  published release; all pre-1.0 releases/tags were removed.
 
 ## Quick commands
 

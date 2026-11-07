@@ -41,7 +41,7 @@ LANGUAGES = {"auto", "en", "zh-CN", "ja"}
 MODES = {"analysis", "pvp", "pve", "eve"}
 SIDES = {"black", "white"}
 JISHOGI_RULES = {"none", "general24", "general27"}
-THEMES = {"classic", "dark", "green", "paper"}
+THEMES = {"classic", "dark", "green", "paper", "neon", "cyber", "constructivist"}
 ROLES = ("black", "white", "analysis")
 
 

@@ -34,10 +34,10 @@
   "game.noPromote": "不成",
   "time.main": "主时间",
   "time.byoyomi": "读秒",
-  "time.increment": "增量",
+  "time.increment": "加秒",
   "time.mode": "方式",
   "time.byoyomiMode": "读秒",
-  "time.incrementMode": "增量",
+  "time.incrementMode": "加秒",
   "time.mainMode": "仅主时间",
   "time.sync": "同步双方",
   "time.minutes": "分",
@@ -206,5 +206,8 @@
   "batch.result": "结果",
   "batch.moves": "手数",
   "mode.analysis": "分析",
-  "time.analysisMode": "不计时"
+  "time.analysisMode": "不计时",
+  "theme.neon": "霓虹",
+  "theme.cyber": "赛博",
+  "theme.constructivist": "构成主义"
 }

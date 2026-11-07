@@ -55,7 +55,7 @@ Covered checks:
 - Pause/resume: the clock stops without resetting, moves are still allowed,
   and the button label toggles.
 - Analysis mode: no running clock and moves are allowed on both sides.
-- Settings: config path, theme switch (persisted), coordinates.
+- Settings: config path, all seven theme switches (persisted), coordinates.
 - Analysis: Analyze/Stop toggle, three lines, mini board, output kept after
   stop, and playing the best move onto the board.
 - Engine options: probe, edit `Threads`, Restart (stop + start), applied

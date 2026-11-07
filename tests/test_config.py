@@ -62,8 +62,13 @@ class ConfigTest(unittest.TestCase):
     def test_theme(self):
         self.assertEqual(validate_config({})["ui"]["theme"], "classic")
         self.assertEqual(validate_config({"ui": {"theme": "dark"}})["ui"]["theme"], "dark")
+        self.assertEqual(validate_config({"ui": {"theme": "neon"}})["ui"]["theme"], "neon")
+        self.assertEqual(
+            validate_config({"ui": {"theme": "constructivist"}})["ui"]["theme"],
+            "constructivist",
+        )
         with self.assertRaises(ValueError):
-            validate_config({"ui": {"theme": "neon"}})
+            validate_config({"ui": {"theme": "vaporwave"}})
 
 
 if __name__ == "__main__":

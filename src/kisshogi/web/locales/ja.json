@@ -206,5 +206,8 @@
   "batch.result": "結果",
   "batch.moves": "手数",
   "mode.analysis": "解析",
-  "time.analysisMode": "時計なし"
+  "time.analysisMode": "時計なし",
+  "theme.neon": "ネオン",
+  "theme.cyber": "サイバー",
+  "theme.constructivist": "構成主義"
 }

@@ -4,10 +4,8 @@
 
 - Target: `foydh/kisshogi`.
 - Default branch: `main`.
-- First release: `v0.1.0` (browser fallback).
-- Current release: `v0.1.3` (native and portable variants).
-- `v0.1.1` tried native-first but its Linux build bundled an older GLib that
-  conflicted with system WebKitGTK; use `v0.1.2` on Linux.
+- Current release: `v1.0.0` (first formal release; native and portable variants).
+- All pre-1.0 releases and tags (`v0.1.0`-`v0.1.3`) were removed.
 
 ## Git setup (local only)
 
@@ -25,8 +23,8 @@ git push -u origin main
 ## Release
 
 ```bash
-git tag -a v0.1.3 -m "Kisshogi 0.1.3"
-git push origin v0.1.3
+git tag -a v1.0.0 -m "Kisshogi 1.0.0"
+git push origin v1.0.0
 ```
 
 `.github/workflows/release.yml` verifies the tag, builds wheel/sdist, builds
@@ -35,7 +33,7 @@ publishes a GitHub release.
 
 ## Status
 
-- `v0.1.3` is the only published release. Assets: wheel, sdist, and four
+- `v1.0.0` is the only published release. Assets: wheel, sdist, and four
   binaries:
   - `linux-x86_64` native (~48 MB, 34 MB compressed)
   - `linux-x86_64-portable` browser-only (~8 MB, 6.7 MB compressed)
@@ -44,9 +42,8 @@ publishes a GitHub release.
 - The released Linux native and portable artifacts were downloaded and
   verified; the native window stayed up and the portable build correctly has
   no native window.
-- Older releases `v0.1.0`, `v0.1.1` and `v0.1.2` and their tags were deleted.
 
-## Packaging decision (0.1.3)
+## Packaging decision (1.0.0)
 
 - `packaging/kisshogi.spec` includes pywebview and (on Linux) PyGObject/WebKit2
   typelib support. These native builds try the native window first and fall

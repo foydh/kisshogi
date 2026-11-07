@@ -385,6 +385,15 @@ def check_pause_theme_and_config_path(browser) -> None:
             wait_config(server, lambda cfg: cfg.get("ui", {}).get("theme") == "dark")
             page.select_option("#themeSelect", "green")
             page.wait_for_function("() => document.body.dataset.theme === 'green'", timeout=5000)
+            for theme in ("paper", "neon", "cyber", "constructivist"):
+                page.select_option("#themeSelect", theme)
+                page.wait_for_function(
+                    "(name) => document.body.dataset.theme === name",
+                    arg=theme,
+                    timeout=5000,
+                )
+                no_page_scroll(page)
+            assert page.evaluate("getComputedStyle(document.body).getPropertyValue('--accent').trim()") == "#d11f1f"
 
             page.select_option("#languageSelect", "zh-CN")
             page.wait_for_function("() => document.documentElement.lang === 'zh-CN'", timeout=10000)

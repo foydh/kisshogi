@@ -206,5 +206,8 @@
   "batch.result": "Result",
   "batch.moves": "Moves",
   "mode.analysis": "Analysis",
-  "time.analysisMode": "No clock"
+  "time.analysisMode": "No clock",
+  "theme.neon": "Neon",
+  "theme.cyber": "Cyber",
+  "theme.constructivist": "Constructivist"
 }
