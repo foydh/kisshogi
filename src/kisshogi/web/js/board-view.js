@@ -37,7 +37,9 @@ const HAND_ORDER = [
 const RANK_NAMES = "abcdefghi";
 const RANK_KANJI = ["一", "二", "三", "四", "五", "六", "七", "八", "九"];
 
-export function pieceGlyph(type) {
+export function pieceGlyph(type, color) {
+  // In shogi, the lower player's king is written 玉 and the upper player's 王.
+  if (type === PieceType.KING) return color === Color.WHITE ? "王" : "玉";
   return GLYPHS[type] || "?";
 }
 
@@ -122,9 +124,9 @@ export class BoardView {
           }
           const rotated = piece.color === Color.BLACK ? flip : !flip;
           if (rotated) span.classList.add("rotated");
-          span.textContent = pieceGlyph(piece.type);
+          span.textContent = pieceGlyph(piece.type, piece.color);
           button.appendChild(span);
-          button.setAttribute("aria-label", `${usi} ${pieceGlyph(piece.type)}`);
+          button.setAttribute("aria-label", `${usi} ${pieceGlyph(piece.type, piece.color)}`);
         } else {
           button.setAttribute("aria-label", usi);
         }
@@ -154,8 +156,8 @@ export class BoardView {
       const rotated = color === Color.BLACK ? flip : !flip;
       if (rotated) button.classList.add("rotated");
       if (state.selectedHand === type && state.selectedHandColor === color) button.classList.add("selected");
-      button.innerHTML = `<span class="hand-glyph">${pieceGlyph(type)}</span><span class="hand-count">${count}</span>`;
-      button.setAttribute("aria-label", `${color} ${pieceGlyph(type)} ${count}`);
+      button.innerHTML = `<span class="hand-glyph">${pieceGlyph(type, color)}</span><span class="hand-count">${count}</span>`;
+      button.setAttribute("aria-label", `${color} ${pieceGlyph(type, color)} ${count}`);
       el.appendChild(button);
     }
     if (!hand.counts?.length) return;

@@ -44,7 +44,7 @@ export class MiniBoard {
           if (PROMOTED_TYPES.has(piece.type)) span.classList.add("promoted");
           const rotated = piece.color === Color.BLACK ? flip : !flip;
           if (rotated) span.classList.add("rotated");
-          span.textContent = pieceGlyph(piece.type);
+          span.textContent = pieceGlyph(piece.type, piece.color);
           cell.appendChild(span);
         }
         fragment.appendChild(cell);

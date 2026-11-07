@@ -187,8 +187,8 @@
   "toast.quit": "Kisshogi 已停止，可以关闭此页面。",
   "app.stoppedTitle": "Kisshogi 已停止",
   "app.stoppedBody": "本地服务已关闭，可以关闭此页面。",
-  "game.pauseGame": "暂停对局",
-  "game.resumeGame": "恢复对局",
+  "game.pauseGame": "暂停计时",
+  "game.resumeGame": "继续计时",
   "analysis.board": "分析棋盘",
   "analysis.bestMove": "最佳着法",
   "analysis.play": "在棋盘上走这步",
@@ -204,5 +204,7 @@
   "status.gamePaused": "对局已暂停",
   "toast.gamePaused": "对局已暂停。",
   "batch.result": "结果",
-  "batch.moves": "手数"
+  "batch.moves": "手数",
+  "mode.analysis": "分析",
+  "time.analysisMode": "不计时"
 }

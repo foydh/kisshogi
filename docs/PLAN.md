@@ -21,7 +21,8 @@ page notifies the backend on exit and a heartbeat is a last-resort watchdog.
 - Every USI option is exposed through a dynamic form. `USI_Ponder` is used for
   standard `go ponder` / `ponderhit` / `stop` flow.
 - Per-side time settings. Each side chooses byoyomi or Fischer increment.
-- Pause/resume freezes clocks and engine turns without resetting the game.
+- Analysis mode (default): no running clocks, free moves for study/kifu
+  review. Pause/resume stops the clock but does not freeze the board.
 - Engine-vs-engine + batch games (color swap, start-SFEN cycling, CSV).
 - 24/27-point entering-king declaration and 24-point jishogi adjudication.
 - KIF/KI2/CSA import; KIF/KI2/CSA/SFEN export; UTF-8 and Shift_JIS output.

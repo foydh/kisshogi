@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 DEFAULT_CONFIG: dict[str, Any] = {
     "version": 1,
     "language": "auto",
-    "mode": "pvp",
+    "mode": "analysis",
     "engineSide": "white",
     "timeControl": {
         "black": {"mainMs": 300000, "byoyomiMs": 10000, "incrementMs": 0},
@@ -38,7 +38,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
 }
 
 LANGUAGES = {"auto", "en", "zh-CN", "ja"}
-MODES = {"pvp", "pve", "eve"}
+MODES = {"analysis", "pvp", "pve", "eve"}
 SIDES = {"black", "white"}
 JISHOGI_RULES = {"none", "general24", "general27"}
 THEMES = {"classic", "dark", "green", "paper"}
@@ -113,7 +113,7 @@ def validate_config(cfg: Any) -> dict[str, Any]:
     if cfg.get("language") not in LANGUAGES:
         raise ValueError("language must be auto, en, zh-CN or ja")
     if cfg.get("mode") not in MODES:
-        raise ValueError("mode must be pvp, pve or eve")
+        raise ValueError("mode must be analysis, pvp, pve or eve")
     if cfg.get("engineSide") not in SIDES:
         raise ValueError("engineSide must be black or white")
     tc = cfg.get("timeControl")

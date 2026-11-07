@@ -8,7 +8,7 @@ python -m unittest discover -s tests -v
 node --test tests/js/*.test.mjs
 ```
 
-Current result: 32 Python tests and 31 JavaScript tests pass.
+Current result: 32 Python tests and 32 JavaScript tests pass.
 
 Coverage highlights:
 - USI option (all types), info cp/mate/bound/PV, bestmove.
@@ -45,13 +45,16 @@ fixed legal opening and logs its protocol traffic. It opens the page with
 
 Covered checks:
 - Layout at 1280x800, 1366x768, and 1600x900: no page scroll, board fits,
-  hands sit to the right, and pieces use five vertices.
+  hands sit on each player's right side, and pieces use the SVG shogi
+  silhouette.
 - Initial board (81 squares) and New game.
 - Position editor apply; invalid positions show an inline reason and leave the
   game unchanged.
 - 27-point entering-king declaration through the real dialog and result text.
 - 24-point jishogi adjudication (impasse) through the real dialog.
-- Pause/resume: clocks stop without resetting, and the button label toggles.
+- Pause/resume: the clock stops without resetting, moves are still allowed,
+  and the button label toggles.
+- Analysis mode: no running clock and moves are allowed on both sides.
 - Settings: config path, theme switch (persisted), coordinates.
 - Analysis: Analyze/Stop toggle, three lines, mini board, output kept after
   stop, and playing the best move onto the board.
@@ -70,9 +73,9 @@ batch) are recorded in `PROGRESS.md`.
 python scripts/smoke.py dist/kisshogi
 ```
 
-The current Linux PyInstaller onefile is ~8.2 MB and serves `/api/health` and
-the token-injected index. It is built without pywebview, so it uses the browser
-fallback.
+The portable browser onefile is ~8.2 MB and serves `/api/health` and the
+token-injected index. The native onefile is ~48 MB and is also checked with
+`--no-browser` here; its window is verified manually/locally.
 
 ## Native release build
 

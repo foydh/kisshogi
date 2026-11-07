@@ -48,50 +48,77 @@ jobs:
           path: dist/*
 
   binary:
-    name: ${{ matrix.name }} binary
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     needs: verify
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: linux-x86_64
+          - name: linux-x86_64 native
             os: ubuntu-24.04
+            variant: native
+            spec: packaging/kisshogi.spec
             artifact: kisshogi-${{ github.ref_name }}-linux-x86_64.tar.gz
-          - name: windows-x86_64
+          - name: linux-x86_64 portable
+            os: ubuntu-22.04
+            variant: portable
+            spec: packaging/kisshogi-portable.spec
+            artifact: kisshogi-${{ github.ref_name }}-linux-x86_64-portable.tar.gz
+          - name: windows-x86_64 native
             os: windows-2022
+            variant: native
+            spec: packaging/kisshogi.spec
             artifact: kisshogi-${{ github.ref_name }}-windows-x86_64.zip
+          - name: windows-x86_64 portable
+            os: windows-2022
+            variant: portable
+            spec: packaging/kisshogi-portable.spec
+            artifact: kisshogi-${{ github.ref_name }}-windows-x86_64-portable.zip
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         if: runner.os == 'Windows'
         with:
           python-version: "3.12"
-      - name: Install Linux native dependencies
+      - name: Install Linux base dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-gi python3-venv gir1.2-gtk-3.0 libglib2.0-bin
+          sudo apt-get install -y python3-venv libglib2.0-bin
+      - name: Install Linux native dependencies
+        if: runner.os == 'Linux' && matrix.variant == 'native'
+        run: |
+          sudo apt-get install -y python3-gi gir1.2-gtk-3.0
           sudo apt-get install -y gir1.2-webkit2-4.1 || sudo apt-get install -y gir1.2-webkit2-4.0
       - name: Install (Linux)
         if: runner.os == 'Linux'
         run: |
           python3 -m venv --system-site-packages .venv-build
           .venv-build/bin/python -m pip install -U pip
-          .venv-build/bin/pip install -e '.[native]'
+          if [ "${{ matrix.variant }}" = "native" ]; then
+            .venv-build/bin/pip install -e '.[native]'
+          else
+            .venv-build/bin/pip install -e .
+          fi
           .venv-build/bin/pip install pyinstaller
       - name: Install (Windows)
         if: runner.os == 'Windows'
+        shell: pwsh
         run: |
           python -m pip install -U pip
-          pip install -e ".[native]"
+          if ("${{ matrix.variant }}" -eq "native") {
+            pip install -e ".[native]"
+          } else {
+            pip install -e .
+          }
           pip install pyinstaller
       - name: Build onefile (Linux)
         if: runner.os == 'Linux'
-        run: .venv-build/bin/pyinstaller packaging/kisshogi.spec --noconfirm --clean
+        run: .venv-build/bin/pyinstaller ${{ matrix.spec }} --noconfirm --clean
       - name: Build onefile (Windows)
         if: runner.os == 'Windows'
-        run: pyinstaller packaging/kisshogi.spec --noconfirm --clean
+        run: pyinstaller ${{ matrix.spec }} --noconfirm --clean
       - name: Smoke (Linux)
         if: runner.os == 'Linux'
         run: .venv-build/bin/python scripts/smoke.py dist/kisshogi

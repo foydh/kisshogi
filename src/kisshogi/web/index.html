@@ -11,6 +11,13 @@
   <link rel="stylesheet" href="/css/panels.css">
 </head>
 <body>
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <defs>
+    <clipPath id="piece-shape" clipPathUnits="objectBoundingBox">
+      <path d="M0.5 0.01 L0.79 0.15 L0.94 0.20 L0.99 0.91 C0.995 0.96 0.97 1 0.92 1 L0.08 1 C0.03 1 0.005 0.96 0.01 0.91 L0.06 0.20 L0.21 0.15 Z" />
+    </clipPath>
+  </defs>
+</svg>
 <div id="app">
   <header class="topbar">
     <div class="brand">
@@ -101,6 +108,7 @@
         <div class="field-grid two">
           <label><span data-i18n="game.mode">Mode</span>
             <select id="modeSelect" class="select">
+              <option value="analysis" data-i18n="mode.analysis">Analysis</option>
               <option value="pvp" data-i18n="mode.pvp">Human vs Human</option>
               <option value="pve" data-i18n="mode.pve">Human vs Engine</option>
               <option value="eve" data-i18n="mode.eve">Engine vs Engine</option>

@@ -49,3 +49,17 @@ test("a new game clears the paused state", () => {
   assert.equal(game.paused, false);
   assert.equal(game.clock.running, true);
 });
+
+test("analysis mode never runs the clocks and still allows moves", () => {
+  let now = 0;
+  const game = makeGame(() => now);
+  game.setMode("analysis");
+  game.newGame();
+  assert.equal(game.clockEnabled, false);
+  assert.equal(game.clock.running, false);
+
+  const move = game.position.createMoveByUSI("7g7f");
+  assert.equal(game.playMove(move).ok, true);
+  assert.equal(game.length, 1);
+  assert.equal(game.clock.running, false);
+});

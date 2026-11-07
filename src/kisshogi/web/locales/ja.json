@@ -187,8 +187,8 @@
   "toast.quit": "Kisshogi を停止しました。このタブを閉じてください。",
   "app.stoppedTitle": "Kisshogi を停止しました",
   "app.stoppedBody": "ローカルサーバーは停止しました。このタブを閉じてください。",
-  "game.pauseGame": "対局を一時停止",
-  "game.resumeGame": "対局を再開",
+  "game.pauseGame": "時計を一時停止",
+  "game.resumeGame": "時計を再開",
   "analysis.board": "解析盤",
   "analysis.bestMove": "最善手",
   "analysis.play": "盤面に指す",
@@ -204,5 +204,7 @@
   "status.gamePaused": "対局を一時停止中",
   "toast.gamePaused": "対局は一時停止中です。",
   "batch.result": "結果",
-  "batch.moves": "手数"
+  "batch.moves": "手数",
+  "mode.analysis": "解析",
+  "time.analysisMode": "時計なし"
 }

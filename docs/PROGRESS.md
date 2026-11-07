@@ -35,10 +35,11 @@ restart, batch games with Ponder, and the Quit flow.
 - Game controller: history, branch truncation, undo, resign, declaration,
   jishogi adjudication, max moves.
 - Board/hands UI, promotion dialog, clocks, status, coordinates.
-- Pause/resume freezes the clocks and engine turns without discarding the game.
+- Analysis mode is the default: no running clocks and free moves for study and
+  kifu review. Pause/resume stops the clock but still allows moves.
 - Hand trays on each player's right side (white top-left, black bottom-right);
-  five-sided piece shape; board sized to fit the viewport at
-  1280x800/1366x768/1600x900 without page scrolling.
+  traditional shogi-piece silhouette; black king 玉 / white king 王; board sized
+  to fit the viewport at 1280x800/1366x768/1600x900 without page scrolling.
 - Four themes (classic, dark, green, paper), persisted in the local config.
 - The settings panel shows the local config file path and can copy it.
 - Quit shows a clean stopped overlay instead of a false "server not responding"
@@ -62,18 +63,20 @@ restart, batch games with Ponder, and the Quit flow.
 - `v0.1.2` is the published native-first release (Linux built on Ubuntu
   24.04, Windows with WebView2). `v0.1.1` on Linux bundled an older GLib that
   conflicted with system WebKitGTK 4.1 and is superseded.
+- `v0.1.3` adds the Analysis mode, the corrected piece/king rendering, and
+  `-portable` browser-only artifacts alongside the native ones.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
 ## Test evidence
 
 - `python -m unittest discover -s tests -v`: 32 tests, OK.
-- `node --test tests/js/*.test.mjs`: 31 tests, OK. This includes pause/resume,
-  and batch Ponder hit and miss paths with a mocked USI API.
+- `node --test tests/js/*.test.mjs`: 32 tests, OK. This includes pause/resume,
+  analysis mode, and batch Ponder hit and miss paths with a mocked USI API.
 - `PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers" python scripts/ui_check.py`:
-  9 checks, OK (layout/scroll, editor apply + inline validation, declaration,
-  impasse, pause + theme + config path, analysis panel, options restart, batch
-  Ponder, Quit).
+  10 checks, OK (layout/scroll, editor apply + inline validation, declaration,
+  impasse, pause + theme + config path, analysis mode, analysis panel, options
+  restart, batch Ponder, Quit).
 - `python scripts/smoke.py dist/kisshogi`: OK.
 - `v0.1.2` released Linux artifact downloaded: server smoke OK and the native
   window stayed up (software OpenGL). The 34 MB tar.gz and 13 MB Windows zip

@@ -173,7 +173,7 @@ export class PositionEditor {
     for (const type of BASE_TYPES) {
       const button = document.createElement("button");
       button.type = "button";
-      button.textContent = pieceGlyph(type);
+      button.textContent = pieceGlyph(type, this.color);
       button.dataset.type = type;
       button.classList.toggle("active", this.type === type);
       button.title = type;

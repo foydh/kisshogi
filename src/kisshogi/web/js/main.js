@@ -144,7 +144,12 @@ function render() {
 }
 
 function updateModeBadge() {
-  const labels = { pvp: t("mode.pvp"), pve: t("mode.pve"), eve: t("mode.eve") };
+  const labels = {
+    analysis: t("mode.analysis"),
+    pvp: t("mode.pvp"),
+    pve: t("mode.pve"),
+    eve: t("mode.eve"),
+  };
   $("#modeBadge").textContent = labels[config.mode] || config.mode;
 }
 
@@ -158,6 +163,7 @@ function applyTheme() {
 function renderClocks() {
   if (!game) return;
   const snapshot = game.clock.snapshot();
+  const analysisMode = config.mode === "analysis";
   for (const color of [Color.BLACK, Color.WHITE]) {
     const role = engineRoleFor(color);
     const isEngine = config.mode === "eve" || (config.mode === "pve" && role === config.engineSide);
@@ -165,8 +171,13 @@ function renderClocks() {
     $(`#clock-${color}-name`).textContent = `${colorName(color)} · ${name}`;
     const card = $(`#clock-${color}`);
     const data = snapshot[color];
-    card.classList.toggle("active", Boolean(data.active));
+    card.classList.toggle("active", Boolean(data.active) && !analysisMode);
     card.classList.toggle("timeout", Boolean(data.timeout));
+    if (analysisMode) {
+      $(`#clock-${color}-time`).textContent = "—";
+      $(`#clock-${color}-sub`).textContent = t("time.analysisMode");
+      continue;
+    }
     const displayMs = data.mainMs > 0 ? data.mainMs : (data.mode === "byoyomi" ? data.byoyomiMs : data.mainMs);
     const showTenths = displayMs <= 10000;
     $(`#clock-${color}-time`).textContent = formatClock(displayMs, showTenths);
@@ -365,10 +376,11 @@ function playAnalysisMove() {
 function renderButtons() {
   const busy = Boolean(batch?.running);
   const paused = Boolean(game.paused);
+  const analysisMode = config.mode === "analysis";
   $("#newGameBtn").disabled = busy;
   $("#pauseBtn").textContent = t(paused ? "game.resumeGame" : "game.pauseGame");
-  $("#pauseBtn").disabled = busy || Boolean(game.result);
-  $("#undoBtn").disabled = busy || paused || !game.length || !game.isLatest;
+  $("#pauseBtn").disabled = busy || analysisMode || Boolean(game.result);
+  $("#undoBtn").disabled = busy || !game.length || !game.isLatest;
   $("#resignBtn").disabled = busy || Boolean(game.result);
   $("#continueBtn").disabled = busy || (game.isLatest && game.autoPlay) || Boolean(game.result);
   $("#editPositionBtn").disabled = busy;
@@ -461,7 +473,6 @@ function handleSquare(square) {
   }
   if (batch?.running) return;
   if (game.result) { toast(t("toast.gameOver")); return; }
-  if (game.paused) { toast(t("toast.gamePaused")); return; }
   if (game.isEngineTurn()) return;
 
   if (selectedHand) {
@@ -522,10 +533,7 @@ function handleSquare(square) {
 }
 
 function handleHand(color, type) {
-  if (editor?.active || game.result || game.paused || game.isEngineTurn() || color !== game.currentColor) {
-    if (game.paused) toast(t("toast.gamePaused"));
-    return;
-  }
+  if (editor?.active || game.result || game.isEngineTurn() || color !== game.currentColor) return;
   if (selectedHand === type && selectedHandColor === color) {
     selectedHand = null;
     selectedHandColor = null;
@@ -833,9 +841,12 @@ function bindUi() {
   }
   $("#modeSelect").addEventListener("change", (event) => {
     config.mode = event.target.value;
+    engine?.stopAllThinking();
     game.setMode(config.mode, config.engineSide);
     persistConfig();
     render();
+    renderClocks();
+    engine?.onGameChange();
   });
   $("#engineSideSelect").addEventListener("change", (event) => {
     config.engineSide = event.target.value;

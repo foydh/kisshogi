@@ -257,7 +257,9 @@ def check_initial_board(browser) -> None:
             page.wait_for_timeout(150)
 
             clip = page.evaluate("getComputedStyle(document.querySelector('.piece')).clipPath")
-            assert clip.count(",") == 4, clip  # five vertices, not a hexagon
+            assert "piece-shape" in clip, clip
+            assert page.text_content('[data-square="5i"] .piece') == "玉"
+            assert page.text_content('[data-square="5a"] .piece') == "王"
             assert_clean(session)
         finally:
             session.close()
@@ -360,12 +362,19 @@ def check_pause_theme_and_config_path(browser) -> None:
             assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
             page.wait_for_timeout(700)
             assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
-            assert page.text_content("#pauseBtn") == "Resume game"
+            assert page.text_content("#pauseBtn") == "Resume clock"
+
+            # Pausing the clock must not freeze the board: moves are allowed,
+            # they simply do not start the clock again.
+            page.click('#board button[data-square="7g"]')
+            page.click('#board button[data-square="7f"]')
+            page.wait_for_function("() => window.__kisshogiDebug.game.length === 1", timeout=5000)
+            assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
 
             page.click("#pauseBtn")
             page.wait_for_function("() => window.__kisshogiDebug.game.paused === false", timeout=5000)
             assert page.evaluate("window.__kisshogiDebug.game.clock.running") is True
-            assert page.text_content("#pauseBtn") == "Pause game"
+            assert page.text_content("#pauseBtn") == "Pause clock"
 
             page.click('.tab[data-tab="settings"]')
             config_path = page.text_content("#configPath") or ""
@@ -380,6 +389,29 @@ def check_pause_theme_and_config_path(browser) -> None:
             page.select_option("#languageSelect", "zh-CN")
             page.wait_for_function("() => document.documentElement.lang === 'zh-CN'", timeout=10000)
             assert "读秒" in (page.text_content("#clock-black-sub") or "")
+            assert_clean(session)
+        finally:
+            session.close()
+
+
+@check
+def check_analysis_mode(browser) -> None:
+    with AppServer(base_config(mode="analysis")) as server:
+        session = PageSession(browser, server)
+        page = session.page
+        try:
+            page.set_viewport_size({"width": 1280, "height": 800})
+            assert page.input_value("#modeSelect") == "analysis"
+            assert "Analysis" in (page.text_content("#modeBadge") or "")
+            page.click("#newGameBtn")
+            page.wait_for_timeout(200)
+            assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
+            assert page.text_content("#clock-black-time") == "—"
+            assert page.text_content("#clock-black-sub") == "No clock"
+            page.click('#board button[data-square="7g"]')
+            page.click('#board button[data-square="7f"]')
+            page.wait_for_function("() => window.__kisshogiDebug.game.length === 1", timeout=5000)
+            assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
             assert_clean(session)
         finally:
             session.close()

@@ -5,7 +5,7 @@
 - Target: `foydh/kisshogi`.
 - Default branch: `main`.
 - First release: `v0.1.0` (browser fallback).
-- Current release: `v0.1.2` (native window first, browser fallback).
+- Current release: `v0.1.3` (native and portable variants).
 - `v0.1.1` tried native-first but its Linux build bundled an older GLib that
   conflicted with system WebKitGTK; use `v0.1.2` on Linux.
 
@@ -25,8 +25,8 @@ git push -u origin main
 ## Release
 
 ```bash
-git tag -a v0.1.2 -m "Kisshogi 0.1.2"
-git push origin v0.1.2
+git tag -a v0.1.3 -m "Kisshogi 0.1.3"
+git push origin v0.1.3
 ```
 
 `.github/workflows/release.yml` verifies the tag, builds wheel/sdist, builds
@@ -42,12 +42,16 @@ publishes a GitHub release.
   WebKitGTK 4.1. The Linux artifact is about 48 MB (34 MB compressed) and the
   Windows zip is about 13 MB; both include pywebview and use the native window
   first. The released Linux binary was smoke-tested and launched natively.
+- `v0.1.3` publishes four binary assets: native and `-portable` browser-only
+  builds for Linux and Windows. The portable builds are ~8 MB.
 
 ## Packaging decision (0.1.2)
 
-- The PyInstaller spec includes pywebview and (on Linux) PyGObject/WebKit2
-  typelib support. Both binaries try the native window first and fall back to
-  the browser if it cannot start.
+- `packaging/kisshogi.spec` includes pywebview and (on Linux) PyGObject/WebKit2
+  typelib support. These native builds try the native window first and fall
+  back to the browser if it cannot start.
+- `packaging/kisshogi-portable.spec` excludes pywebview/GI for the
+  `-portable` browser-only assets, built on older baseline runners.
 - **Linux**: the binary bundles the GI/Gtk runtime pieces but deliberately uses
   the system `libwebkit2gtk` shared libraries. Bundling WebKitGTK produced a
   400+ MB onefile tied to one distribution's library set. A source install and

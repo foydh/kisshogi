@@ -9,14 +9,15 @@ Kisshogi は KISS 方針の小さな将棋 GUI です。ローカル対局と US
 
 ## 機能
 
-- 人 vs 人、人 vs エンジン、エンジン vs エンジン。
+- **解析**モード（既定）。時計を動かさず局面研究・棋譜再生に使えます。人 vs 人、
+  人 vs エンジン、エンジン vs エンジンも選べます。
 - **先手・後手で別々のエンジン**を設定可能。USI オプションを動的に全表示
   （check/spin/combo/string/filename/button）。
 - **USI_Ponder** 対応（`go ponder` / `ponderhit` / `stop`）。
 - 各側で独立した時間設定：持ち時間＋秒読み、または持ち時間＋フィッシャー加算。
 - エンジン解析（MultiPV、リアルタイム info、全局解析、SVG 評価値グラフ）。
   停止後も最後の結果を保持し、ミニ盤で最善手を表示してそのまま盤面に指せます。
-- 対局の一時停止／再開。時計は止まります。
+- 時計の一時停止／再開。盤面は凍結せず、停止中も指せます。
 - 白は左上、黒は右下に駒台を置く伝統的な配置。4 種類のテーマ、画面に合わせた盤面サイズ。
 - 設定画面にローカル設定ファイルのパスを表示。
 - KIF / KI2 / CSA 読み込み、KIF / KI2 / CSA / SFEN 出力（UTF-8 / Shift_JIS）。
@@ -66,10 +67,14 @@ kisshogi
 Linux のネイティブウィンドウは既定でソフトウェア OpenGL を使うため、VM や
 リモートデスクトップでも動作します。`LIBGL_ALWAYS_SOFTWARE=0` で無効にできます。
 
-GitHub Release のバイナリは pywebview を同梱し、ネイティブウィンドウを優先します。
-Linux ではシステムの PyGObject / WebKitGTK 4.1 を使用します（Ubuntu 24.04 で
-ビルドしているため、古いディストリビューションはソースからインストールしてください）。
-Windows では WebView2 を使用します。
+Release は 2 種類あります。
+
+- **native**（既定）：pywebview を同梱し、ネイティブウィンドウを優先します。Linux は
+  システムの PyGObject / WebKitGTK 4.1（Ubuntu 24.04 ビルド、glibc 2.39+）、Windows は
+  WebView2 を使用します。
+- **portable**：ブラウザ専用で、ネイティブ依存がありません。古い環境向けです。
+
+ファイル名に `-portable` が付くものがブラウザ版です。
 
 ## 起動と終了
 

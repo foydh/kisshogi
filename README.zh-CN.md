@@ -8,13 +8,14 @@ Kisshogi 是一款遵循 KISS 原则的小型将棋 GUI，面向本地对局与 
 
 ## 功能
 
-- 人 vs 人、人 vs 引擎、引擎 vs 引擎。
+- **分析**模式（默认）用于局面研究和打谱，不计时；另有 人 vs 人、人 vs 引擎、
+  引擎 vs 引擎模式。
 - **黑白分别配置引擎**；动态展示全部 USI 选项（check/spin/combo/string/filename/button）。
 - 支持 **USI_Ponder**（`go ponder`、`ponderhit`、`stop`）。
 - 每方独立时间设置：主时间 + 秒読み，或主时间 + Fischer 增量；双方可用不同方式。
 - 引擎分析（MultiPV、实时 info、整局解析、SVG 评估曲线）；停止后保留最后结果，
   小棋盘显示最佳着法，并可直接走到主棋盘。
-- 暂停/恢复对局，计时不走。
+- 暂停/恢复计时，不冻结棋盘；暂停时仍可走子。
 - 白方驹台在左上、黑方在右下的传统布局；四种主题；棋盘大小自适应。
 - 设置中显示本机配置文件路径。
 - KIF/KI2/CSA 读取；KIF/KI2/CSA/SFEN 导出；支持 UTF-8 与 Shift_JIS。
@@ -63,9 +64,14 @@ kisshogi
 Linux 下原生窗口默认使用软件 OpenGL，以便在虚拟机和远程桌面上也能运行；可设置
 `LIBGL_ALWAYS_SOFTWARE=0` 关闭。
 
-GitHub Release 的二进制现在包含 pywebview，会优先打开原生窗口；Linux 使用系统
-PyGObject/WebKitGTK 4.1（二进制在 Ubuntu 24.04 上构建，较旧的发行版请从源码安装），
-Windows 使用 WebView2 运行时。
+Release 同时提供两种包：
+
+- **native**（默认）：包含 pywebview，优先打开原生窗口，失败回退浏览器。Linux 使用
+  系统 PyGObject/WebKitGTK 4.1（在 Ubuntu 24.04 上构建，需要 glibc 2.39+）；Windows
+  使用 WebView2。
+- **portable**：纯浏览器版，不依赖原生窗口，兼容较旧的系统。
+
+文件名带 `-portable` 的是浏览器版。
 
 ## 运行与退出
 

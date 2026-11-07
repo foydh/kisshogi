@@ -9,7 +9,8 @@ play and USI engine testing.
 
 ## Features
 
-- Human vs Human, Human vs Engine, and Engine vs Engine.
+- **Analysis** mode (the default) for position study and kifu review with no
+  running clocks, plus Human vs Human, Human vs Engine, and Engine vs Engine.
 - **Separate engines for Black and White**, with every USI option exposed in a
   dynamic form (check / spin / combo / string / filename / button).
 - **USI_Ponder** support (`go ponder` → `ponderhit` / `stop`).
@@ -18,7 +19,8 @@ play and USI engine testing.
 - Engine analysis with MultiPV, live info, full-game scan, and an SVG
   evaluation graph. Analysis keeps its last output after stopping, shows the
   best move on a mini board, and can play that move onto the main board.
-- Pause and resume a game without resetting the clocks.
+- Pause/resume the clock without freezing the board; moves are still allowed
+  while the clock is paused.
 - Hand trays on each player's right side (white left, black right) and four
   UI themes.
 - The settings panel shows the local configuration file path.
@@ -85,11 +87,15 @@ to opt out.
 
 ## Prebuilt binaries
 
-The GitHub release binaries include pywebview and try the **native window
-first**, then fall back to the browser. On Linux the native window uses the
-system PyGObject and WebKitGTK 4.1 libraries; the Linux binary is built on
-Ubuntu 24.04, so older distributions should install from source. On Windows it
-uses the WebView2 runtime.
+Each release is published in two variants:
+
+- **native** (default): includes pywebview and tries the native window first,
+  then falls back to the browser. Linux uses system PyGObject + WebKitGTK 4.1
+  and the binary is built on Ubuntu 24.04 (glibc 2.39+); Windows uses WebView2.
+- **portable**: browser-only, no native dependencies, built on older baseline
+  toolchains for maximum compatibility.
+
+The asset name contains `-portable` for the browser-only builds.
 
 ## Run
 

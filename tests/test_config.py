@@ -57,7 +57,7 @@ class ConfigTest(unittest.TestCase):
     def test_unknown_keys_ignored(self):
         cfg = validate_config({"junk": 1})
         self.assertNotIn("junk", cfg)
-        self.assertEqual(json.loads(json.dumps(cfg))["mode"], "pvp")
+        self.assertEqual(json.loads(json.dumps(cfg))["mode"], "analysis")
 
     def test_theme(self):
         self.assertEqual(validate_config({})["ui"]["theme"], "classic")

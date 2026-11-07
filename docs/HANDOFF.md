@@ -24,7 +24,8 @@
   container with those defaults; a real desktop should still be checked for
   window-close behavior.
 - Release binaries bundle pywebview and use the native window first. Linux
-  relies on system PyGObject/WebKitGTK 4.1; Windows relies on WebView2.
+  relies on system PyGObject/WebKitGTK 4.1; Windows relies on WebView2. The
+  release also ships `-portable` browser-only assets.
 
 ## Quick commands
 

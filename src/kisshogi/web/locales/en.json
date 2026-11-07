@@ -187,8 +187,8 @@
   "toast.quit": "Kisshogi has stopped. You can close this tab.",
   "app.stoppedTitle": "Kisshogi has stopped",
   "app.stoppedBody": "The local server is no longer running. You can close this browser tab.",
-  "game.pauseGame": "Pause game",
-  "game.resumeGame": "Resume game",
+  "game.pauseGame": "Pause clock",
+  "game.resumeGame": "Resume clock",
   "analysis.board": "Analysis board",
   "analysis.bestMove": "Best move",
   "analysis.play": "Play best move",
@@ -204,5 +204,7 @@
   "status.gamePaused": "Game paused",
   "toast.gamePaused": "The game is paused.",
   "batch.result": "Result",
-  "batch.moves": "Moves"
+  "batch.moves": "Moves",
+  "mode.analysis": "Analysis",
+  "time.analysisMode": "No clock"
 }

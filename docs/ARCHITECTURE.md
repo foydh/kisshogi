@@ -69,7 +69,7 @@ Schema (abridged):
 {
   "version": 1,
   "language": "auto",
-  "mode": "pvp",
+  "mode": "analysis",
   "engineSide": "white",
   "timeControl": {
     "black": {"mainMs": 300000, "byoyomiMs": 10000, "incrementMs": 0},
