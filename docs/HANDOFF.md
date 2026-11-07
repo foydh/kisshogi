@@ -39,15 +39,14 @@ with `?debug` (used by `scripts/ui_check.py`).
 
 ## Immediate next steps
 
-1. Push `main` to `foydh/kisshogi` (the remote exists but was empty), then
-   verify the CI workflow. The repository is otherwise ready for a new session.
-2. Run the release workflow by pushing `v0.1.0`; inspect wheel, sdist and both
-   binaries. See `RELEASE.md` for the packaging decision.
-3. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
+1. Run the release workflow by pushing `v0.1.0`; inspect wheel, sdist and
+   both binaries. See `RELEASE.md` for the packaging decision. `main` is
+   already pushed to `foydh/kisshogi` and CI is green.
+2. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
    the current onefile binaries intentionally use the browser fallback.
-4. Validate the native pywebview window and the Windows binary on real
+3. Validate the native pywebview window and the Windows binary on real
    desktops; this sandbox cannot do either.
-5. Optional polish: refresh screenshots after the UI changes.
+4. Optional polish: refresh screenshots after the UI changes.
 
 ## Important constraints
 

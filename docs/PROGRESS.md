@@ -62,9 +62,9 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
 1. **Native release packaging**: the 0.1.0 binaries stay browser-fallback (see
    `RELEASE.md`). A separate Windows native bundle is the best candidate but
    needs WebView2/pythonnet packaging and testing on Windows.
-2. **GitHub**: the local repository is on `main`; the remote
-   `foydh/kisshogi` exists but was empty. Push, CI, tag, and release status
-   must be checked after this session.
+2. **GitHub**: `main` is pushed to `foydh/kisshogi`, and CI is green on
+   Python 3.10/3.12 for Ubuntu and Windows, JavaScript, and wheel/sdist. The
+   `v0.1.0` tag and the release workflow are the remaining step.
 3. **Native pywebview** must be validated on a real Linux/Windows desktop; the
    sandbox's WebKit/MESA issue is environmental.
 4. **Windows binary** has not been built here; CI will be the first run.
