@@ -1,4 +1,5 @@
 import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -33,7 +34,10 @@ class ConfigTest(unittest.TestCase):
             save_config(path, validate_config({}))
             loaded = load_config(path)
             self.assertEqual(loaded["version"], 1)
-            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            if os.name != "nt":
+                # Windows only models the read-only bit, so POSIX modes are
+                # not meaningful there.
+                self.assertEqual(path.stat().st_mode & 0o777, 0o600)
 
     def test_corrupt_uses_defaults(self):
         with tempfile.TemporaryDirectory() as tmp:
