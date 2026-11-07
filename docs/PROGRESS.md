@@ -40,6 +40,9 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
 - Batch EvE: color swap, start SFEN cycling, summary, CSV.
 - i18n en/zh-CN/ja; original CSS art; bundled Noto CJK subsets.
 - CI workflows and PyInstaller spec; 8.2 MB Linux onefile smoke-tested.
+- GitHub CI is green on Python 3.10/3.12 for Ubuntu and Windows, JavaScript, and
+  wheel/sdist. `v0.1.0` is published with wheel, sdist, Linux tar.gz, Windows
+  zip, and SHA256SUMS.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
@@ -52,6 +55,9 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
   6 checks, OK (initial board, editor apply + inline validation, declaration,
   impasse, options restart, batch Ponder).
 - `python scripts/smoke.py dist/kisshogi`: OK.
+- Released Linux artifact downloaded and smoke-tested from the GitHub release:
+  OK. The Windows zip contains only `kisshogi.exe` plus the expected docs;
+  neither archive contains engines, books, configs, or logs.
 - Playwright UI checks use `tests/ui/fake_engine.py`, a deterministic USI test
   double that follows a fixed legal opening and logs protocol traffic.
 - Native launch in this sandbox fails inside WebKit and falls back to browser
@@ -62,13 +68,11 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
 1. **Native release packaging**: the 0.1.0 binaries stay browser-fallback (see
    `RELEASE.md`). A separate Windows native bundle is the best candidate but
    needs WebView2/pythonnet packaging and testing on Windows.
-2. **GitHub**: `main` is pushed to `foydh/kisshogi`, and CI is green on
-   Python 3.10/3.12 for Ubuntu and Windows, JavaScript, and wheel/sdist. The
-   `v0.1.0` tag and the release workflow are the remaining step.
-3. **Native pywebview** must be validated on a real Linux/Windows desktop; the
+2. **Native pywebview** must be validated on a real Linux/Windows desktop; the
    sandbox's WebKit/MESA issue is environmental.
-4. **Windows binary** has not been built here; CI will be the first run.
-5. **Screenshots**: `docs/screenshot*.png` are originals; settings screenshot
+3. **Windows binary** is built by CI and packaged, but has not been launched on
+   Windows here.
+4. **Screenshots**: `docs/screenshot*.png` are originals; settings screenshot
    was removed because it contained a local engine path.
 
 ## Handoff

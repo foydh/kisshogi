@@ -39,14 +39,12 @@ with `?debug` (used by `scripts/ui_check.py`).
 
 ## Immediate next steps
 
-1. Run the release workflow by pushing `v0.1.0`; inspect wheel, sdist and
-   both binaries. See `RELEASE.md` for the packaging decision. `main` is
-   already pushed to `foydh/kisshogi` and CI is green.
-2. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
+1. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
    the current onefile binaries intentionally use the browser fallback.
-3. Validate the native pywebview window and the Windows binary on real
+2. Validate the native pywebview window and the Windows binary on real
    desktops; this sandbox cannot do either.
-4. Optional polish: refresh screenshots after the UI changes.
+3. Optional polish: refresh screenshots after the UI changes, and add release
+   notes for the next version.
 
 ## Important constraints
 

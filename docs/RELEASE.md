@@ -30,6 +30,14 @@ git push origin v0.1.0
 Linux and Windows onefile artifacts, runs smoke tests, creates checksums, and
 publishes a GitHub release.
 
+## Status
+
+`v0.1.0` was published on 2026-11-08. Assets: wheel, sdist,
+`kisshogi-v0.1.0-linux-x86_64.tar.gz`, `kisshogi-v0.1.0-windows-x86_64.zip`,
+and `SHA256SUMS.txt`. The released Linux binary was downloaded and
+smoke-tested; the Windows zip was inspected (it contains `kisshogi.exe` and
+docs only).
+
 ## Packaging decision (0.1.0)
 
 - The PyInstaller spec excludes pywebview/GI/PIL to keep one cross-platform
