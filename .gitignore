@@ -1,0 +1,15 @@
+.venv/
+.venv-*/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+dist/
+build/
+config.json
+*.log
+engines/
+*.engine
+.playwright-browsers/
+node_modules/
+.DS_Store

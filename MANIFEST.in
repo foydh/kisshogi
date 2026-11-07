@@ -1,0 +1,3 @@
+recursive-include src/kisshogi/web *
+include README.md README.zh-CN.md README.ja.md LICENSE THIRD_PARTY_LICENSES.md ASSETS.md
+recursive-include docs *

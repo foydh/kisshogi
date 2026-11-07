@@ -1,0 +1,177 @@
+# Kisshogi
+
+[简体中文](README.zh-CN.md) · [日本語](README.ja.md)
+
+Kisshogi is a small, KISS shogi GUI for Windows and Linux. It is built for
+local play and USI engine testing: no Electron, no frontend framework, no
+database, no WebSocket, and no runtime npm.
+
+![Kisshogi screenshot](docs/screenshot.png)
+
+## Features
+
+- Human vs Human, Human vs Engine, and Engine vs Engine.
+- **Separate engines for Black and White**, with every USI option exposed in a
+  dynamic form (check / spin / combo / string / filename / button).
+- **USI_Ponder** support (`go ponder` → `ponderhit` / `stop`).
+- Per-side time controls: main time + byoyomi **or** main time + Fischer
+  increment. Each side can use a different mode.
+- Engine analysis with MultiPV, live info, full-game scan, and an SVG
+  evaluation graph.
+- KIF / KI2 / CSA import; UTF-8/Shift_JIS input; KIF / KI2 / CSA / SFEN export
+  in UTF-8 or Shift_JIS.
+- Position editor (board, hands, side to move, SFEN).
+- Entering-king declaration (24/27-point rules) and 24-point jishogi
+  adjudication.
+- Batch games with color swapping, start-SFEN cycling, result summary, and CSV
+  export.
+- Simplified Chinese, English, and Japanese UI; local fonts; no CDN.
+- Configurable maximum move count (`0` = unlimited).
+- Native window by default when pywebview is available; automatic browser
+  fallback.
+
+## Requirements
+
+- Python 3.10+.
+- Windows 10/11 or a modern Linux desktop.
+- Native window (optional but recommended):
+  - Windows: Edge WebView2 Runtime.
+  - Linux: PyGObject + WebKitGTK 4.1.
+- A USI engine of your choice. **No engine is bundled.**
+
+## Install from source
+
+Always use a virtual environment; do not install with the system Python.
+
+Linux native window:
+
+```bash
+sudo apt install python3-gi gir1.2-webkit2-4.1
+python3 -m venv --system-site-packages .venv
+source .venv/bin/activate
+python -m pip install -U pip
+pip install -e '.[native]'
+kisshogi
+```
+
+Linux without native dependencies (browser fallback):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+kisshogi --browser
+```
+
+Windows PowerShell:
+
+```powershell
+py -3 -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -U pip
+pip install -e ".[native]"
+kisshogi
+```
+
+If the native window cannot start, Kisshogi falls back to the system browser.
+`--native` forces native mode and fails with installation hints instead of
+falling back.
+
+## Prebuilt binaries
+
+The GitHub release binaries currently use the **browser fallback** because
+pywebview is excluded from the portable PyInstaller build. Install from source
+with the `native` extra if you want the native window. The launcher itself
+always tries native first when pywebview is available.
+
+## Run
+
+```text
+kisshogi                  # native window, fallback to browser
+kisshogi --browser        # force browser
+kisshogi --native         # require native window
+kisshogi --no-browser     # serve only (CI / debugging)
+kisshogi --port 8765
+kisshogi --config ./config.json
+```
+
+Closing the native window exits Kisshogi. In browser mode, closing the tab
+schedules an exit after about 5 seconds; a heartbeat fallback exits after
+120 seconds if close detection fails. The header's **Quit** button exits
+immediately. `Ctrl+C` in the terminal always works.
+
+## Engine setup
+
+1. Open **Settings**.
+2. Enter the path to a USI engine for Black, White, and/or Analysis. Relative
+   paths are resolved against the local config directory; absolute paths are
+   also accepted.
+3. Click **Read options / test**. Kisshogi starts the engine briefly, verifies
+   `isready`, and lists every USI option.
+4. Edit the options. Non-button changes take effect after restarting the
+   engine; button options can be executed immediately.
+5. Select a mode and press **New game**.
+
+Engine paths and options are stored only in the local user config
+(`%APPDATA%\Kisshogi\config.json` on Windows, `$XDG_CONFIG_HOME/kisshogi` or
+`~/.config/kisshogi` on Linux). They are never written into the repository or
+release artifacts.
+
+`USI_Ponder` is just another option. Set it to `true` if the engine supports
+pondering. Kisshogi sends `go ponder`, then `ponderhit` when the predicted move
+is played, or `stop` on a mismatch. Ponder time is not charged to the clock.
+
+## Notes
+
+- The project uses the independent MIT-licensed
+  [tsshogi](https://github.com/sunfish-shogi/tsshogi) library for rules, SFEN,
+  and KIF/CSA parsing. It does not copy ShogiHome GUI code or assets.
+- KIF/KI2/CSA export is UTF-8 by default; Shift_JIS is available from the
+  export dialog. Shift_JIS export fails gracefully if a character cannot be
+  encoded.
+- The maximum move count is a draw rule, not a hard GUI limit. Set it to `0`
+  to disable it.
+- Batch games use the Black and White engine slots as Engine A and Engine B;
+  colors are swapped on alternate games.
+- No real engine, evaluation file, book, or user config is included in this
+  repository.
+
+## Project documentation
+
+- [Plan](docs/PLAN.md)
+- [Progress](docs/PROGRESS.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Testing](docs/TESTING.md)
+- [Handoff notes](docs/HANDOFF.md)
+- [Release process](docs/RELEASE.md)
+
+## Development
+
+```bash
+python3 -m venv --system-site-packages .venv
+source .venv/bin/activate
+pip install -e '.[dev,native]'
+
+python -m unittest discover -s tests -v
+node --test tests/js/*.test.mjs
+```
+
+Optional font rebuild after changing locale strings:
+
+```bash
+python tools/build_fonts.py
+```
+
+The vendored tsshogi version and its license are documented in
+`src/kisshogi/web/vendor/tsshogi/VENDOR.md`.
+
+## License and credits
+
+- Code: MIT.
+- Original visual design, CSS artwork, icons, and screenshots: CC0-1.0.
+- tsshogi: MIT.
+- Noto CJK font subsets: SIL OFL 1.1.
+- pywebview (optional): BSD 3-Clause.
+
+See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) and
+[ASSETS.md](ASSETS.md). Kisshogi is not affiliated with ShogiHome.

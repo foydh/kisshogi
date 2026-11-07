@@ -1,0 +1,508 @@
+// JSON Kifu Format (.jkf .json)
+// See https://github.com/na2hiro/Kifu-for-JS/blob/master/packages/json-kifu-format/README.md
+import { Color } from "./color.mjs";
+import { getSpecialMoveByName, getCSASpecialMoveName } from "./csa.mjs";
+import { kakinokiToMetadataKey, metadataKeyToKakinoki } from "./kakinoki.mjs";
+import { Move } from "./move.mjs";
+import { Piece, PieceType, isPromotable } from "./piece.mjs";
+import { InitialPositionSFEN, Position, isPromotableRank } from "./position.mjs";
+import { Record } from "./record.mjs";
+import { Square } from "./square.mjs";
+import { getDirectionModifier } from "./text.mjs";
+export var JKFColor;
+(function (JKFColor) {
+    JKFColor[JKFColor["BLACK"] = 0] = "BLACK";
+    JKFColor[JKFColor["WHITE"] = 1] = "WHITE";
+})(JKFColor || (JKFColor = {}));
+export var JKFSpecial;
+(function (JKFSpecial) {
+    JKFSpecial["TORYO"] = "TORYO";
+    JKFSpecial["CHUDAN"] = "CHUDAN";
+    JKFSpecial["SENNICHITE"] = "SENNICHITE";
+    JKFSpecial["TIME_UP"] = "TIME_UP";
+    JKFSpecial["ILLEGAL_MOVE"] = "ILLEGAL_MOVE";
+    JKFSpecial["BLACK_ILLEGAL_ACTION"] = "+ILLEGAL_ACTION";
+    JKFSpecial["WHITE_ILLEGAL_ACTION"] = "-ILLEGAL_ACTION";
+    JKFSpecial["JISHOGI"] = "JISHOGI";
+    JKFSpecial["KACHI"] = "KACHI";
+    JKFSpecial["HIKIWAKE"] = "HIKIWAKE";
+    JKFSpecial["MAX_MOVES"] = "MAX_MOVES";
+    JKFSpecial["MATTA"] = "MATTA";
+    JKFSpecial["TSUMI"] = "TSUMI";
+    JKFSpecial["FUZUMI"] = "FUZUMI";
+    JKFSpecial["ERROR"] = "ERROR";
+})(JKFSpecial || (JKFSpecial = {}));
+export var JKFKind;
+(function (JKFKind) {
+    JKFKind["FU"] = "FU";
+    JKFKind["KY"] = "KY";
+    JKFKind["KE"] = "KE";
+    JKFKind["GI"] = "GI";
+    JKFKind["KI"] = "KI";
+    JKFKind["KA"] = "KA";
+    JKFKind["HI"] = "HI";
+    JKFKind["OU"] = "OU";
+    JKFKind["TO"] = "TO";
+    JKFKind["NY"] = "NY";
+    JKFKind["NK"] = "NK";
+    JKFKind["NG"] = "NG";
+    JKFKind["UM"] = "UM";
+    JKFKind["RY"] = "RY";
+})(JKFKind || (JKFKind = {}));
+function msToJKFTimeMS(ms) {
+    return {
+        m: Math.floor(ms / (60 * 1000)),
+        s: Math.floor(ms / 1000) % 60,
+    };
+}
+function msToJKFTimeHMS(ms) {
+    return {
+        h: Math.floor(ms / (60 * 60 * 1000)),
+        m: Math.floor(ms / (60 * 1000)) % 60,
+        s: Math.floor(ms / 1000) % 60,
+    };
+}
+function jkfTimeToMs(time) {
+    return ((time.h || 0) * 60 * 60 + time.m * 60 + time.s) * 1000;
+}
+function colorToJKF(color) {
+    switch (color) {
+        case Color.BLACK:
+            return JKFColor.BLACK;
+        default:
+            return JKFColor.WHITE;
+    }
+}
+function jkfToColor(color) {
+    switch (color) {
+        default:
+            return Color.BLACK;
+        case JKFColor.WHITE:
+            return Color.WHITE;
+    }
+}
+function pieceTypeToJKF(type) {
+    switch (type) {
+        case PieceType.PAWN:
+            return JKFKind.FU;
+        case PieceType.LANCE:
+            return JKFKind.KY;
+        case PieceType.KNIGHT:
+            return JKFKind.KE;
+        case PieceType.SILVER:
+            return JKFKind.GI;
+        case PieceType.GOLD:
+            return JKFKind.KI;
+        case PieceType.BISHOP:
+            return JKFKind.KA;
+        case PieceType.ROOK:
+            return JKFKind.HI;
+        case PieceType.KING:
+            return JKFKind.OU;
+        case PieceType.PROM_PAWN:
+            return JKFKind.TO;
+        case PieceType.PROM_LANCE:
+            return JKFKind.NY;
+        case PieceType.PROM_KNIGHT:
+            return JKFKind.NK;
+        case PieceType.PROM_SILVER:
+            return JKFKind.NG;
+        case PieceType.HORSE:
+            return JKFKind.UM;
+        case PieceType.DRAGON:
+            return JKFKind.RY;
+    }
+}
+function jkfToPieceType(kind) {
+    switch (kind) {
+        case JKFKind.FU:
+            return PieceType.PAWN;
+        case JKFKind.KY:
+            return PieceType.LANCE;
+        case JKFKind.KE:
+            return PieceType.KNIGHT;
+        case JKFKind.GI:
+            return PieceType.SILVER;
+        case JKFKind.KI:
+            return PieceType.GOLD;
+        case JKFKind.KA:
+            return PieceType.BISHOP;
+        case JKFKind.HI:
+            return PieceType.ROOK;
+        case JKFKind.OU:
+            return PieceType.KING;
+        case JKFKind.TO:
+            return PieceType.PROM_PAWN;
+        case JKFKind.NY:
+            return PieceType.PROM_LANCE;
+        case JKFKind.NK:
+            return PieceType.PROM_KNIGHT;
+        case JKFKind.NG:
+            return PieceType.PROM_SILVER;
+        case JKFKind.UM:
+            return PieceType.HORSE;
+        case JKFKind.RY:
+            return PieceType.DRAGON;
+    }
+}
+const directionModifierToJKF = {
+    左: "L",
+    直: "C",
+    右: "R",
+    上: "U",
+    寄: "M",
+    引: "D",
+    打: "H",
+};
+/**
+ * JSON棋譜フォーマットの文字列を読み取ります。
+ * @param data
+ */
+export function importJKFString(data) {
+    try {
+        return importJKF(JSON.parse(data));
+    }
+    catch (e) {
+        return new Error("failed to parse JSON: " + e);
+    }
+}
+/**
+ * JSON棋譜フォーマットのオブジェクトを読み取ります。
+ * @param jkf
+ */
+export function importJKF(jkf) {
+    try {
+        const position = new Position();
+        if (jkf.initial) {
+            switch (jkf.initial.preset) {
+                case "HIRATE":
+                    position.resetBySFEN(InitialPositionSFEN.STANDARD);
+                    break;
+                case "KY":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_LANCE);
+                    break;
+                case "KY_R":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_RIGHT_LANCE);
+                    break;
+                case "KA":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_BISHOP);
+                    break;
+                case "HI":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_ROOK);
+                    break;
+                case "HIKY":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_ROOK_LANCE);
+                    break;
+                case "2":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_2PIECES);
+                    break;
+                case "4":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_4PIECES);
+                    break;
+                case "6":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_6PIECES);
+                    break;
+                case "8":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_8PIECES);
+                    break;
+                case "10":
+                    position.resetBySFEN(InitialPositionSFEN.HANDICAP_10PIECES);
+                    break;
+                case "OTHER":
+                    position.resetBySFEN(InitialPositionSFEN.EMPTY);
+                    if (jkf.initial.data) {
+                        position.setColor(jkfToColor(jkf.initial.data.color));
+                        if (Array.isArray(jkf.initial.data.board)) {
+                            for (let x = 1; x <= 9; x++) {
+                                for (let y = 1; y <= 9; y++) {
+                                    const piece = jkf.initial.data.board[x - 1][y - 1];
+                                    if (piece?.kind) {
+                                        const square = new Square(x, y);
+                                        const color = jkfToColor(piece.color);
+                                        const pieceType = jkfToPieceType(piece.kind);
+                                        position.board.set(square, new Piece(color, pieceType));
+                                    }
+                                }
+                            }
+                        }
+                        for (const kind of Object.values(JKFKind)) {
+                            const b = jkf.initial.data.hands[0][kind] || 0;
+                            position.blackHand.set(jkfToPieceType(kind), b);
+                            const w = jkf.initial.data.hands[1][kind] || 0;
+                            position.whiteHand.set(jkfToPieceType(kind), w);
+                        }
+                    }
+                    break;
+                default:
+                    return new Error("initial position preset not supported: " + jkf.initial.preset);
+            }
+        }
+        const record = new Record(position);
+        Object.entries(jkf.header).forEach(([key, value]) => {
+            const metadataKey = kakinokiToMetadataKey(key);
+            if (metadataKey) {
+                record.metadata.setStandardMetadata(metadataKey, value);
+            }
+            else {
+                record.metadata.setCustomMetadata(key, value);
+            }
+        });
+        const stack = [{ ply: 0, moves: jkf.moves }];
+        while (stack.length > 0) {
+            const entry = stack.pop();
+            record.goto(entry.ply);
+            for (const m of entry.moves) {
+                const ply = record.current.ply;
+                if (m.move) {
+                    let from;
+                    if (m.move.from) {
+                        from = new Square(m.move.from.x, m.move.from.y);
+                    }
+                    else if (m.move.relative && m.move.relative !== "H") {
+                        return new Error("unnormalized-JKF not supported.");
+                    }
+                    else {
+                        from = jkfToPieceType(m.move.piece);
+                    }
+                    let to;
+                    if (m.move.to) {
+                        to = new Square(m.move.to.x, m.move.to.y);
+                    }
+                    else if (m.move.same && record.current.prev?.move instanceof Move) {
+                        to = record.current.prev.move.to;
+                    }
+                    else {
+                        return new Error("invalid move: " + JSON.stringify(m.move));
+                    }
+                    let move = record.position.createMove(from, to);
+                    if (!move) {
+                        return new Error("invalid move: " + JSON.stringify(m.move));
+                    }
+                    if (m.move.promote) {
+                        move = move.withPromote();
+                    }
+                    record.append(move, { ignoreValidation: true });
+                }
+                if (m.special) {
+                    const move = getSpecialMoveByName(m.special, record.current.nextColor);
+                    if (move) {
+                        record.append(move);
+                    }
+                }
+                if (m.time) {
+                    record.current.setElapsedMs(jkfTimeToMs(m.time.now));
+                }
+                if (m.comments) {
+                    record.current.comment = m.comments.join("\n");
+                }
+                if (m.forks) {
+                    for (let i = m.forks.length - 1; i >= 0; i--) {
+                        stack.push({ ply: ply, moves: m.forks[i] });
+                    }
+                }
+            }
+        }
+        record.goto(0);
+        record.resetAllBranchSelection();
+        return record;
+    }
+    catch (e) {
+        return new Error("failed to  JKF: " + e);
+    }
+}
+function buildJKFMoves(node, basePos) {
+    const position = basePos.clone();
+    const moves = [];
+    for (; node; node = node.next) {
+        const entry = {
+            time: {
+                now: msToJKFTimeMS(node.elapsedMs),
+                total: msToJKFTimeHMS(node.totalElapsedMs),
+            },
+        };
+        if (node.move instanceof Move) {
+            const move = node.move;
+            entry.move = {
+                color: colorToJKF(move.color),
+                piece: pieceTypeToJKF(move.pieceType),
+                to: {
+                    x: move.to.file,
+                    y: move.to.rank,
+                },
+            };
+            if (move.from instanceof Square) {
+                entry.move.from = {
+                    x: move.from.file,
+                    y: move.from.rank,
+                };
+                if (node.prev?.move instanceof Move && node.prev.move.to === move.to) {
+                    entry.move.same = true;
+                }
+                if (move.promote) {
+                    entry.move.promote = true;
+                }
+                else if (isPromotable(move.pieceType) &&
+                    (isPromotableRank(move.color, move.from.rank) ||
+                        isPromotableRank(move.color, move.to.rank))) {
+                    entry.move.promote = false;
+                }
+                if (move.capturedPieceType) {
+                    entry.move.capture = pieceTypeToJKF(move.capturedPieceType);
+                }
+            }
+            const relative = getDirectionModifier(move, position)
+                .split("")
+                .map((s) => {
+                return directionModifierToJKF[s] || "";
+            })
+                .join("");
+            if (relative) {
+                entry.move.relative = relative;
+            }
+        }
+        else {
+            const command = getCSASpecialMoveName(node.move, node.nextColor);
+            if (!command) {
+                break;
+            }
+            entry.special = command;
+        }
+        if (node.comment) {
+            entry.comments = node.comment.trimEnd().split("\n");
+        }
+        if (node.isFirstBranch) {
+            const forks = [];
+            for (let branch = node.branch; branch; branch = branch.branch) {
+                forks.push(buildJKFMoves(branch, position));
+            }
+            if (forks.length !== 0) {
+                entry.forks = forks;
+            }
+        }
+        moves.push(entry);
+        if (node.move instanceof Move) {
+            if (!position.doMove(node.move, { ignoreValidation: true })) {
+                break;
+            }
+        }
+    }
+    return moves;
+}
+/**
+ * JSON棋譜フォーマットの文字列を出力します。
+ * @param record
+ */
+export function exportJKFString(record) {
+    return JSON.stringify(exportJKF(record));
+}
+/**
+ * JSON棋譜フォーマットのオブジェクトを出力します。
+ * @param record
+ */
+export function exportJKF(record) {
+    const header = {};
+    for (const key of record.metadata.standardMetadataKeys) {
+        const value = record.metadata.getStandardMetadata(key);
+        if (value) {
+            header[metadataKeyToKakinoki(key)] = value;
+        }
+    }
+    for (const key of record.metadata.customMetadataKeys) {
+        const value = record.metadata.getCustomMetadata(key);
+        if (value) {
+            header[key] = value;
+        }
+    }
+    let initial;
+    const blackHand = record.initialPosition.blackHand;
+    const whiteHand = record.initialPosition.whiteHand;
+    switch (record.initialPosition.sfen) {
+        case InitialPositionSFEN.STANDARD:
+            initial = { preset: "HIRATE" };
+            break;
+        case InitialPositionSFEN.HANDICAP_LANCE:
+            initial = { preset: "KY" };
+            break;
+        case InitialPositionSFEN.HANDICAP_RIGHT_LANCE:
+            initial = { preset: "KY_R" };
+            break;
+        case InitialPositionSFEN.HANDICAP_BISHOP:
+            initial = { preset: "KA" };
+            break;
+        case InitialPositionSFEN.HANDICAP_ROOK:
+            initial = { preset: "HI" };
+            break;
+        case InitialPositionSFEN.HANDICAP_ROOK_LANCE:
+            initial = { preset: "HIKY" };
+            break;
+        case InitialPositionSFEN.HANDICAP_2PIECES:
+            initial = { preset: "2" };
+            break;
+        case InitialPositionSFEN.HANDICAP_4PIECES:
+            initial = { preset: "4" };
+            break;
+        case InitialPositionSFEN.HANDICAP_6PIECES:
+            initial = { preset: "6" };
+            break;
+        case InitialPositionSFEN.HANDICAP_8PIECES:
+            initial = { preset: "8" };
+            break;
+        case InitialPositionSFEN.HANDICAP_10PIECES:
+            initial = { preset: "10" };
+            break;
+        default:
+            initial = {
+                preset: "OTHER",
+                data: {
+                    color: colorToJKF(record.initialPosition.color),
+                    board: (function () {
+                        const board = [[], [], [], [], [], [], [], [], []];
+                        for (let x = 1; x <= 9; x++) {
+                            for (let y = 1; y <= 9; y++) {
+                                const square = new Square(x, y);
+                                const piece = record.initialPosition.board.at(square);
+                                board[x - 1][y - 1] = piece
+                                    ? {
+                                        color: colorToJKF(piece.color),
+                                        kind: pieceTypeToJKF(piece.type),
+                                    }
+                                    : {};
+                            }
+                        }
+                        return board;
+                    })(),
+                    hands: [
+                        {
+                            FU: blackHand.count(PieceType.PAWN),
+                            KY: blackHand.count(PieceType.LANCE),
+                            KE: blackHand.count(PieceType.KNIGHT),
+                            GI: blackHand.count(PieceType.SILVER),
+                            KI: blackHand.count(PieceType.GOLD),
+                            KA: blackHand.count(PieceType.BISHOP),
+                            HI: blackHand.count(PieceType.ROOK),
+                        },
+                        {
+                            FU: whiteHand.count(PieceType.PAWN),
+                            KY: whiteHand.count(PieceType.LANCE),
+                            KE: whiteHand.count(PieceType.KNIGHT),
+                            GI: whiteHand.count(PieceType.SILVER),
+                            KI: whiteHand.count(PieceType.GOLD),
+                            KA: whiteHand.count(PieceType.BISHOP),
+                            HI: whiteHand.count(PieceType.ROOK),
+                        },
+                    ],
+                },
+            };
+            break;
+    }
+    const moves = [
+        record.first.comment ? { comments: record.first.comment.trimEnd().split("\n") } : {},
+        ...(record.first.next ? buildJKFMoves(record.first.next, record.initialPosition) : []),
+    ];
+    return {
+        header,
+        initial,
+        moves,
+    };
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiamtmLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vc3JjL2prZi50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxnQ0FBZ0M7QUFDaEMsNkZBQTZGO0FBRTdGLE9BQU8sRUFBRSxLQUFLLEVBQUUsTUFBTSxTQUFTLENBQUM7QUFDaEMsT0FBTyxFQUFFLG9CQUFvQixFQUFFLHFCQUFxQixFQUFFLE1BQU0sT0FBTyxDQUFDO0FBQ3BFLE9BQU8sRUFBRSxxQkFBcUIsRUFBRSxxQkFBcUIsRUFBRSxNQUFNLFlBQVksQ0FBQztBQUMxRSxPQUFPLEVBQUUsSUFBSSxFQUFFLE1BQU0sUUFBUSxDQUFDO0FBQzlCLE9BQU8sRUFBRSxLQUFLLEVBQUUsU0FBUyxFQUFFLFlBQVksRUFBRSxNQUFNLFNBQVMsQ0FBQztBQUN6RCxPQUFPLEVBQXFCLG1CQUFtQixFQUFFLFFBQVEsRUFBRSxnQkFBZ0IsRUFBRSxNQUFNLFlBQVksQ0FBQztBQUNoRyxPQUFPLEVBQWtDLE1BQU0sRUFBRSxNQUFNLFVBQVUsQ0FBQztBQUNsRSxPQUFPLEVBQUUsTUFBTSxFQUFFLE1BQU0sVUFBVSxDQUFDO0FBQ2xDLE9BQU8sRUFBRSxvQkFBb0IsRUFBRSxNQUFNLFFBQVEsQ0FBQztBQWlEOUMsTUFBTSxDQUFOLElBQVksUUFHWDtBQUhELFdBQVksUUFBUTtJQUNsQix5Q0FBUyxDQUFBO0lBQ1QseUNBQVMsQ0FBQTtBQUNYLENBQUMsRUFIVyxRQUFRLEtBQVIsUUFBUSxRQUduQjtBQVVELE1BQU0sQ0FBTixJQUFZLFVBZ0JYO0FBaEJELFdBQVksVUFBVTtJQUNwQiw2QkFBZSxDQUFBO0lBQ2YsK0JBQWlCLENBQUE7SUFDakIsdUNBQXlCLENBQUE7SUFDekIsaUNBQW1CLENBQUE7SUFDbkIsMkNBQTZCLENBQUE7SUFDN0Isc0RBQXdDLENBQUE7SUFDeEMsc0RBQXdDLENBQUE7SUFDeEMsaUNBQW1CLENBQUE7SUFDbkIsNkJBQWUsQ0FBQTtJQUNmLG1DQUFxQixDQUFBO0lB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

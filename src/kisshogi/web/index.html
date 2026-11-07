@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="kisshogi-token" content="__KISSHOGI_TOKEN__">
+  <title>Kisshogi</title>
+  <link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/board.css">
+  <link rel="stylesheet" href="/css/panels.css">
+</head>
+<body>
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <img src="/assets/logo.svg" alt="" class="brand-logo">
+      <div>
+        <h1>Kisshogi</h1>
+        <span id="modeBadge" class="badge">PvP</span>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <label class="language-label" for="languageSelect" data-i18n="language.label">Language</label>
+      <select id="languageSelect" class="select small" aria-label="Language"></select>
+      <button id="quitButton" class="ghost danger-text" type="button" data-i18n="app.quit">Quit</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="board-column">
+      <div class="clocks">
+        <div id="clock-white" class="clock-card">
+          <div class="clock-name"><span id="engine-white-dot" class="engine-dot"></span><span id="clock-white-name">White</span></div>
+          <div id="clock-white-time" class="clock-time">5:00</div>
+          <div id="clock-white-sub" class="clock-sub"></div>
+        </div>
+        <div id="clock-black" class="clock-card">
+          <div class="clock-name"><span id="engine-black-dot" class="engine-dot"></span><span id="clock-black-name">Black</span></div>
+          <div id="clock-black-time" class="clock-time">5:00</div>
+          <div id="clock-black-sub" class="clock-sub"></div>
+        </div>
+      </div>
+
+      <div class="board-area">
+        <div id="whiteHand" class="hand-row hand-white" aria-label="White hand"></div>
+        <div id="board" class="board" role="grid" aria-label="Shogi board"></div>
+        <div id="blackHand" class="hand-row hand-black" aria-label="Black hand"></div>
+      </div>
+
+      <div class="status-row">
+        <div id="statusText" class="status-text" aria-live="polite"></div>
+        <div id="resultText" class="result-text"></div>
+      </div>
+      <div id="editorToolbar" class="editor-toolbar hidden">
+        <div class="editor-row">
+          <span data-i18n="editor.tool">Tool</span>
+          <button type="button" class="seg active" data-editor-color="black" data-i18n="color.black">Black</button>
+          <button type="button" class="seg" data-editor-color="white" data-i18n="color.white">White</button>
+          <span class="sep"></span>
+          <button type="button" class="seg active" data-editor-tool="place" data-i18n="editor.place">Place</button>
+          <button type="button" class="seg" data-editor-tool="erase" data-i18n="editor.erase">Erase</button>
+          <label class="inline-check"><input id="editorPromote" type="checkbox"> <span data-i18n="editor.promoted">Promoted</span></label>
+        </div>
+        <div id="editorPalette" class="editor-palette"></div>
+        <div class="editor-row">
+          <span data-i18n="editor.sideToMove">Side to move</span>
+          <button type="button" class="seg active" data-editor-turn="black" data-i18n="color.black">Black</button>
+          <button type="button" class="seg" data-editor-turn="white" data-i18n="color.white">White</button>
+          <span class="sep"></span>
+          <button type="button" class="seg active" data-editor-piece-color="black" data-i18n="color.black">Black</button>
+          <button type="button" class="seg" data-editor-piece-color="white" data-i18n="color.white">White</button>
+        </div>
+        <div id="editorHands" class="editor-hands"></div>
+        <div class="editor-row">
+          <input id="editorSfen" class="text-input grow" placeholder="SFEN" aria-label="SFEN">
+          <button id="editorLoadSfen" type="button" data-i18n="editor.loadSfen">Load SFEN</button>
+          <button id="editorCopySfen" type="button" data-i18n="editor.copySfen">Copy SFEN</button>
+        </div>
+        <div class="editor-row actions">
+          <button id="editorStandard" type="button" data-i18n="editor.standard">Standard</button>
+          <button id="editorClear" type="button" data-i18n="editor.clear">Clear</button>
+          <button id="editorCancel" type="button" data-i18n="common.cancel">Cancel</button>
+          <button id="editorApply" type="button" class="primary" data-i18n="editor.apply">Apply</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="sidebar">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" type="button" data-tab="game" data-i18n="tab.game">Game</button>
+        <button class="tab" type="button" data-tab="analysis" data-i18n="tab.analysis">Analysis</button>
+        <button class="tab" type="button" data-tab="record" data-i18n="tab.record">Record</button>
+        <button class="tab" type="button" data-tab="settings" data-i18n="tab.settings">Settings</button>
+      </nav>
+
+      <section class="panel active" data-panel="game">
+        <div class="field-grid two">
+          <label><span data-i18n="game.mode">Mode</span>
+            <select id="modeSelect" class="select">
+              <option value="pvp" data-i18n="mode.pvp">Human vs Human</option>
+              <option value="pve" data-i18n="mode.pve">Human vs Engine</option>
+              <option value="eve" data-i18n="mode.eve">Engine vs Engine</option>
+            </select>
+          </label>
+          <label><span data-i18n="game.engineSide">Engine side</span>
+            <select id="engineSideSelect" class="select">
+              <option value="white" data-i18n="color.white">White</option>
+              <option value="black" data-i18n="color.black">Black</option>
+            </select>
+          </label>
+        </div>
+
+        <details class="group" open>
+          <summary data-i18n="game.timeControl">Time control</summary>
+          <div class="time-table" id="timeTable">
+            <div class="time-head"><span></span><span data-i18n="time.main">Main</span><span data-i18n="time.byoyomi">Byoyomi</span><span data-i18n="time.increment">Increment</span><span data-i18n="time.mode">Mode</span></div>
+          </div>
+          <div class="row"><button id="syncTimes" type="button" data-i18n="time.sync">Sync both sides</button></div>
+          <div class="field-grid two">
+            <label><span data-i18n="game.maxMoves">Max moves (0 = unlimited)</span><input id="maxMovesInput" class="text-input" type="number" min="0" max="10000"></label>
+            <label><span data-i18n="game.jishogiRule">Jishogi rule</span>
+              <select id="jishogiSelect" class="select">
+                <option value="none" data-i18n="jishogi.none">None</option>
+                <option value="general24" data-i18n="jishogi.general24">24-point declaration</option>
+                <option value="general27" data-i18n="jishogi.general27">27-point declaration</option>
+              </select>
+            </label>
+          </div>
+        </details>
+
+        <div class="button-grid">
+          <button id="newGameBtn" type="button" class="primary" data-i18n="game.newGame">New game</button>
+          <button id="undoBtn" type="button" data-i18n="game.undo">Undo</button>
+          <button id="resignBtn" type="button" class="danger" data-i18n="game.resign">Resign</button>
+          <button id="flipBtn" type="button" data-i18n="game.flip">Flip board</button>
+          <button id="continueBtn" type="button" data-i18n="game.continue">Continue game</button>
+          <button id="editPositionBtn" type="button" data-i18n="game.editPosition">Edit position</button>
+          <button id="declareBtn" type="button" data-i18n="game.declare">Declare win</button>
+          <button id="impasseBtn" type="button" data-i18n="game.impasse">Jishogi points</button>
+        </div>
+
+        <details class="group">
+          <summary data-i18n="batch.title">Batch games</summary>
+          <div class="field-grid three">
+            <label><span data-i18n="batch.games">Games</span><input id="batchGames" class="text-input" type="number" min="1" max="1000"></label>
+            <label class="inline-check"><input id="batchSwap" type="checkbox"> <span data-i18n="batch.swap">Swap colors</span></label>
+            <button id="batchCsv" type="button" data-i18n="batch.csv">Export CSV</button>
+          </div>
+          <label><span data-i18n="batch.sfens">Start SFEN list (one per line, optional)</span>
+            <textarea id="batchSfens" class="text-area" rows="3" spellcheck="false"></textarea>
+          </label>
+          <div class="row">
+            <button id="batchStart" type="button" class="primary" data-i18n="batch.start">Start batch</button>
+            <button id="batchStop" type="button" class="danger" data-i18n="batch.stop">Stop</button>
+            <span id="batchProgress" class="muted"></span>
+          </div>
+          <div id="batchResults" class="batch-results"></div>
+        </details>
+
+        <div class="engine-mini">
+          <span id="engine-mini-black" class="muted">Black engine: -</span>
+          <span id="engine-mini-white" class="muted">White engine: -</span>
+          <span id="engine-mini-analysis" class="muted">Analysis engine: -</span>
+        </div>
+      </section>
+
+      <section class="panel" data-panel="analysis">
+        <div class="field-grid three">
+          <label><span data-i18n="analysis.multipv">MultiPV</span><input id="analysisMultiPV" class="text-input" type="number" min="1" max="8"></label>
+          <label><span data-i18n="analysis.scanMs">Scan ms / position</span><input id="analysisScanMs" class="text-input" type="number" min="100" max="5000"></label>
+          <label class="inline-check"><input id="analysisAuto" type="checkbox"> <span data-i18n="analysis.follow">Follow position</span></label>
+        </div>
+        <div class="row">
+          <button id="analysisStart" type="button" class="primary" data-i18n="analysis.start">Analyze</button>
+          <button id="analysisStop" type="button" data-i18n="analysis.stop">Stop</button>
+          <span id="analysisStatus" class="muted"></span>
+        </div>
+        <div id="analysisLines" class="analysis-lines"></div>
+        <div class="graph-header">
+          <span data-i18n="analysis.graph">Evaluation graph</span>
+          <button id="analyzeGameBtn" type="button" data-i18n="analysis.scanGame">Analyze whole game</button>
+          <button id="analyzeGameStop" type="button" data-i18n="analysis.stopScan">Stop scan</button>
+          <span id="analyzeGameProgress" class="muted"></span>
+        </div>
+        <div id="evalGraph" class="eval-graph"></div>
+      </section>
+
+      <section class="panel" data-panel="record">
+        <div class="field-grid two">
+          <label><span data-i18n="record.import">Import</span><input id="kifuFile" type="file" accept=".kif,.kifu,.ki2,.ki2u,.csa,.sfen,.txt"></label>
+          <label><span data-i18n="record.exportFormat">Export format</span>
+            <select id="exportFormat" class="select">
+              <option value="kif">KIF</option>
+              <option value="ki2">KI2</option>
+              <option value="csa">CSA</option>
+              <option value="sfen">SFEN</option>
+            </select>
+          </label>
+        </div>
+        <div class="field-grid two">
+          <label><span data-i18n="record.exportEncoding">Encoding</span>
+            <select id="exportEncoding" class="select">
+              <option value="utf-8">UTF-8</option>
+              <option value="shift_jis">Shift_JIS</option>
+            </select>
+          </label>
+          <button id="exportBtn" type="button" data-i18n="record.export">Export</button>
+        </div>
+        <div class="row">
+          <button id="copySfenBtn" type="button" data-i18n="record.copySfen">Copy SFEN</button>
+          <button id="copyUsiBtn" type="button" data-i18n="record.copyUsi">Copy USI</button>
+        </div>
+        <div id="recordMeta" class="record-meta muted"></div>
+        <ol id="moveList" class="move-list"></ol>
+      </section>
+
+      <section class="panel" data-panel="settings">
+        <div id="engineCards" class="engine-cards"></div>
+        <div class="field-grid two">
+          <label class="inline-check"><input id="coordinatesToggle" type="checkbox"> <span data-i18n="settings.coordinates">Show coordinates</span></label>
+          <button id="quitButton2" type="button" class="danger" data-i18n="app.quit">Quit</button>
+        </div>
+        <p class="muted small" data-i18n="settings.engineHint">Engines are not distributed with Kisshogi. Paths are stored only in your local config and are never packaged.</p>
+      </section>
+    </aside>
+  </main>
+</div>
+<div id="toast" class="toast"></div>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kisshogi"
+version = "0.1.0"
+description = "A small KISS shogi GUI for Windows and Linux"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "foydh" }]
+keywords = ["shogi", "usi", "gui"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: X11 Applications :: GTK",
+  "Intended Audience :: End Users/Desktop",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python :: 3",
+  "Topic :: Games/Entertainment :: Board Games",
+]
+dependencies = []
+
+[project.optional-dependencies]
+native = ["pywebview>=6.2,<7"]
+dev = ["build>=1.2", "pyinstaller>=6.22", "fonttools[woff]>=4.50"]
+
+[project.scripts]
+kisshogi = "kisshogi.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/foydh/kisshogi"
+Repository = "https://github.com/foydh/kisshogi"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+kisshogi = [
+  "web/*.html",
+  "web/css/*.css",
+  "web/js/*.js",
+  "web/locales/*.json",
+  "web/assets/*.svg",
+  "web/assets/fonts/*.woff2",
+  "web/assets/fonts/OFL.txt",
+  "web/vendor/tsshogi/*.mjs",
+  "web/vendor/tsshogi/*.md",
+  "web/vendor/tsshogi/LICENSE",
+]

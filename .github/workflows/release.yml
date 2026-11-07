@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Verify tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install package
+        run: pip install -e .
+      - name: Version matches tag
+        run: |
+          python - <<'PY'
+          import os
+          import kisshogi
+          tag = os.environ["GITHUB_REF_NAME"]
+          assert tag == f"v{kisshogi.__version__}", (tag, kisshogi.__version__)
+          print("version ok", tag)
+          PY
+
+  wheels:
+    name: Python distributions
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build
+        run: |
+          python -m pip install -U pip build
+          python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-dist
+          path: dist/*
+
+  binary:
+    name: ${{ matrix.name }} binary
+    runs-on: ${{ matrix.os }}
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: linux-x86_64
+            os: ubuntu-22.04
+            artifact: kisshogi-${{ github.ref_name }}-linux-x86_64.tar.gz
+          - name: windows-x86_64
+            os: windows-2022
+            artifact: kisshogi-${{ github.ref_name }}-windows-x86_64.zip
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          python -m pip install -U pip
+          pip install -e .
+          pip install pyinstaller
+      - name: Build onefile
+        run: pyinstaller packaging/kisshogi.spec --noconfirm --clean
+      - name: Smoke (Linux)
+        if: runner.os == 'Linux'
+        run: python scripts/smoke.py dist/kisshogi
+      - name: Smoke (Windows)
+        if: runner.os == 'Windows'
+        run: python scripts/smoke.py dist/kisshogi.exe
+      - name: Package (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          mkdir -p package
+          cp dist/kisshogi package/
+          cp README.md README.zh-CN.md README.ja.md LICENSE THIRD_PARTY_LICENSES.md ASSETS.md package/
+          tar -czf "${{ matrix.artifact }}" -C package .
+      - name: Package (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force package | Out-Null
+          Copy-Item dist/kisshogi.exe package/
+          Copy-Item README.md,README.zh-CN.md,README.ja.md,LICENSE,THIRD_PARTY_LICENSES.md,ASSETS.md package/
+          Compress-Archive -Path package/* -DestinationPath "${{ matrix.artifact }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.name }}
+          path: ${{ matrix.artifact }}
+
+  release:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    needs: [wheels, binary]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Checksums
+        run: |
+          cd artifacts
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
+          generate_release_notes: true

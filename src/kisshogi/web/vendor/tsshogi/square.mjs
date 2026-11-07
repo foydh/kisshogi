@@ -1,0 +1,164 @@
+import { Direction, vectorToDirectionAndDistance } from "./direction.mjs";
+function usiFileToNumber(usi) {
+    return usi >= "1" && usi <= "9" ? Number(usi) : null;
+}
+function usiRankToNumber(usi) {
+    switch (usi) {
+        case "a":
+            return 1;
+        case "b":
+            return 2;
+        case "c":
+            return 3;
+        case "d":
+            return 4;
+        case "e":
+            return 5;
+        case "f":
+            return 6;
+        case "g":
+            return 7;
+        case "h":
+            return 8;
+        case "i":
+            return 9;
+        default:
+            return null;
+    }
+}
+const sfenRanks = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
+/**
+ * マス目
+ */
+export class Square {
+    file;
+    rank;
+    constructor(file, rank) {
+        this.file = file;
+        this.rank = rank;
+    }
+    /**
+     * 9筋を0としたx座標
+     */
+    get x() {
+        return 9 - this.file;
+    }
+    /**
+     * 1段目を0としたy座標
+     */
+    get y() {
+        return this.rank - 1;
+    }
+    /**
+     * 0～80のインデックス
+     * 0=「9一」, 1=「8一」, ..., 80=「1九」
+     */
+    get index() {
+        return this.y * 9 + this.x;
+    }
+    /**
+     * 先後を反転したマスを取得します。
+     */
+    get opposite() {
+        return new Square(10 - this.file, 10 - this.rank);
+    }
+    neighbor(arg0, arg1) {
+        switch (arg0) {
+            case Direction.UP:
+                return new Square(this.file, this.rank - 1);
+            case Direction.DOWN:
+                return new Square(this.file, this.rank + 1);
+            case Direction.LEFT:
+                return new Square(this.file + 1, this.rank);
+            case Direction.RIGHT:
+                return new Square(this.file - 1, this.rank);
+            case Direction.LEFT_UP:
+                return new Square(this.file + 1, this.rank - 1);
+            case Direction.RIGHT_UP:
+                return new Square(this.file - 1, this.rank - 1);
+            case Direction.LEFT_DOWN:
+                return new Square(this.file + 1, this.rank + 1);
+            case Direction.RIGHT_DOWN:
+                return new Square(this.file - 1, this.rank + 1);
+            case Direction.LEFT_UP_KNIGHT:
+                return new Square(this.file + 1, this.rank - 2);
+            case Direction.RIGHT_UP_KNIGHT:
+                return new Square(this.file - 1, this.rank - 2);
+            case Direction.LEFT_DOWN_KNIGHT:
+                return new Square(this.file + 1, this.rank + 2);
+            case Direction.RIGHT_DOWN_KNIGHT:
+                return new Square(this.file - 1, this.rank + 2);
+        }
+        const dx = arg0;
+        const dy = arg1;
+        return new Square(this.file - dx, this.rank + dy);
+    }
+    /** 指定したマスへの方向を返します。 */
+    directionTo(square) {
+        return vectorToDirectionAndDistance(square.x - this.x, square.y - this.y).direction;
+    }
+    /** 有効なマス目であるか判定します。 */
+    get valid() {
+        return this.file >= 1 && this.file <= 9 && this.rank >= 1 && this.rank <= 9;
+    }
+    /** 同じマス目か判定します。 */
+    equals(square) {
+        return !!square && this.file === square.file && this.rank === square.rank;
+    }
+    /**
+     * 座標を指定してマスを取得します。
+     * @param x
+     * @param y
+     */
+    static newByXY(x, y) {
+        return new Square(9 - x, y + 1);
+    }
+    /**
+     * インデクスを指定してマスを取得します。
+     * @param index
+     */
+    static newByIndex(index) {
+        return new Square(9 - (index % 9), Math.trunc(index / 9) + 1);
+    }
+    /**
+     * 全てのマス目の一覧
+     */
+    static all = [];
+    /**
+     * SFEN形式の文字列を取得します。
+     * @deprecated Use usi instead.
+     */
+    get sfen() {
+        return this.usi;
+    }
+    /**
+     * USI形式の文字列を取得します。
+     */
+    get usi() {
+        return this.file + sfenRanks[this.rank - 1];
+    }
+    /**
+     * SFEN形式のマス目をパースします。
+     * @param sfen
+     * @deprecated Use newByUSI instead.
+     */
+    static parseSFENSquare(sfen) {
+        return Square.newByUSI(sfen);
+    }
+    /**
+     * USI形式のマス目をパースします。
+     * @param usi
+     */
+    static newByUSI(usi) {
+        const file = usiFileToNumber(usi[0]);
+        const rank = usiRankToNumber(usi[1]);
+        if (!file || !rank) {
+            return null;
+        }
+        return new Square(file, rank);
+    }
+}
+for (let index = 0; index < 81; index += 1) {
+    Square.all.push(Square.newByIndex(index));
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3F1YXJlLmpzIiwic291cmNlUm9vdCI6IiIsInNvdXJjZXMiOlsiLi4vLi4vc3JjL3NxdWFyZS50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSxPQUFPLEVBQUUsU0FBUyxFQUFFLDRCQUE0QixFQUFFLE1BQU0sYUFBYSxDQUFDO0FBRXRFLFNBQVMsZUFBZSxDQUFDLEdBQVc7SUFDbEMsT0FBTyxHQUFHLElBQUksR0FBRyxJQUFJLEdBQUcsSUFBSSxHQUFHLENBQUMsQ0FBQyxDQUFDLE1BQU0sQ0FBQyxHQUFHLENBQUMsQ0FBQyxDQUFDLENBQUMsSUFBSSxDQUFDO0FBQ3ZELENBQUM7QUFFRCxTQUFTLGVBQWUsQ0FBQyxHQUFXO0lBQ2xDLFFBQVEsR0FBRyxFQUFFLENBQUM7UUFDWixLQUFLLEdBQUc7WUFDTixPQUFPLENBQUMsQ0FBQztRQUNYLEtBQUssR0FBRztZQUNOLE9BQU8sQ0FBQyxDQUFDO1FBQ1gsS0FBSyxHQUFHO1lBQ04sT0FBTyxDQUFDLENBQUM7UUFDWCxLQUFLLEdBQUc7WUFDTixPQUFPLENBQUMsQ0FBQztRQUNYLEtBQUssR0FBRztZQUNOLE9BQU8sQ0FBQyxDQUFDO1FBQ1gsS0FBSyxHQUFHO1lBQ04sT0FBTyxDQUFDLENBQUM7UUFDWCxLQUFLLEdBQUc7WUFDTixPQUFPLENBQUMsQ0FBQztRQUNYLEtBQUssR0FBRztZQUNOLE9BQU8sQ0FBQyxDQUFDO1FBQ1gsS0FBSyxHQUFHO1lBQ04sT0FBTyxDQUFDLENBQUM7UUFDWDtZQUNFLE9BQU8sSUFBSSxDQUFDO0lBQ2hCLENBQUM7QUFDSCxDQUFDO0FBRUQsTUFBTSxTQUFTLEdBQUcsQ0FBQyxHQUFHLEVBQUUsR0FBRyxFQUFFLEdBQUcsRUFBRSxHQUFHLEVBQUUsR0FBRyxFQUFFLEdBQUcsRUFBRSxHQUFHLEVBQUUsR0FBRyxFQUFFLEdBQUcsQ0FBQyxDQUFDO0FBRWhFOztHQUVHO0FBQ0gsTUFBTSxPQUFPLE1BQU07SUFFUjtJQUNBO0lBRlQsWUFDUyxJQUFZLEVBQ1osSUFBWTtR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
