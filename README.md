@@ -2,9 +2,8 @@
 
 [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
-Kisshogi is a small, KISS shogi GUI for Windows and Linux. It is built for
-local play and USI engine testing: no Electron, no frontend framework, no
-database, no WebSocket, and no runtime npm.
+Kisshogi is a small, KISS shogi GUI for Windows and Linux, built for local
+play and USI engine testing.
 
 ![Kisshogi screenshot](docs/screenshot.png)
 
@@ -17,7 +16,11 @@ database, no WebSocket, and no runtime npm.
 - Per-side time controls: main time + byoyomi **or** main time + Fischer
   increment. Each side can use a different mode.
 - Engine analysis with MultiPV, live info, full-game scan, and an SVG
-  evaluation graph.
+  evaluation graph. Analysis keeps its last output after stopping, shows the
+  best move on a mini board, and can play that move onto the main board.
+- Pause and resume a game without resetting the clocks.
+- Traditional right-side hand trays and four UI themes.
+- The settings panel shows the local configuration file path.
 - KIF / KI2 / CSA import; UTF-8/Shift_JIS input; KIF / KI2 / CSA / SFEN export
   in UTF-8 or Shift_JIS.
 - Position editor (board, hands, side to move, SFEN).
@@ -75,14 +78,15 @@ kisshogi
 
 If the native window cannot start, Kisshogi falls back to the system browser.
 `--native` forces native mode and fails with installation hints instead of
-falling back.
+falling back. On Linux the native window uses software OpenGL by default so
+WebKitGTK also works in VMs and remote desktops; set `LIBGL_ALWAYS_SOFTWARE=0`
+to opt out.
 
 ## Prebuilt binaries
 
-The GitHub release binaries currently use the **browser fallback** because
-pywebview is excluded from the portable PyInstaller build. Install from source
-with the `native` extra if you want the native window. The launcher itself
-always tries native first when pywebview is available.
+The GitHub release binaries use the **browser**. Install from source with the
+`native` extra if you want a desktop window. The launcher always tries the
+native window first when pywebview is available.
 
 ## Run
 
@@ -90,9 +94,7 @@ always tries native first when pywebview is available.
 kisshogi                  # native window, fallback to browser
 kisshogi --browser        # force browser
 kisshogi --native         # require native window
-kisshogi --no-browser     # serve only (CI / debugging)
 kisshogi --port 8765
-kisshogi --config ./config.json
 ```
 
 Closing the native window exits Kisshogi. In browser mode, closing the tab
@@ -125,9 +127,8 @@ Batch games use the same ponder flow when `USI_Ponder` is enabled.
 
 ## Notes
 
-- The project uses the independent MIT-licensed
-  [tsshogi](https://github.com/sunfish-shogi/tsshogi) library for rules, SFEN,
-  and KIF/CSA parsing. It does not copy ShogiHome GUI code or assets.
+- Rules, SFEN, and KIF/CSA parsing use the independent MIT-licensed
+  [tsshogi](https://github.com/sunfish-shogi/tsshogi) library.
 - KIF/KI2/CSA export is UTF-8 by default; Shift_JIS is available from the
   export dialog. Shift_JIS export fails gracefully if a character cannot be
   encoded.
@@ -135,37 +136,6 @@ Batch games use the same ponder flow when `USI_Ponder` is enabled.
   to disable it.
 - Batch games use the Black and White engine slots as Engine A and Engine B;
   colors are swapped on alternate games.
-- No real engine, evaluation file, book, or user config is included in this
-  repository.
-
-## Project documentation
-
-- [Plan](docs/PLAN.md)
-- [Progress](docs/PROGRESS.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Testing](docs/TESTING.md)
-- [Handoff notes](docs/HANDOFF.md)
-- [Release process](docs/RELEASE.md)
-
-## Development
-
-```bash
-python3 -m venv --system-site-packages .venv
-source .venv/bin/activate
-pip install -e '.[dev,native]'
-
-python -m unittest discover -s tests -v
-node --test tests/js/*.test.mjs
-```
-
-Optional font rebuild after changing locale strings:
-
-```bash
-python tools/build_fonts.py
-```
-
-The vendored tsshogi version and its license are documented in
-`src/kisshogi/web/vendor/tsshogi/VENDOR.md`.
 
 ## License and credits
 
@@ -176,4 +146,4 @@ The vendored tsshogi version and its license are documented in
 - pywebview (optional): BSD 3-Clause.
 
 See [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) and
-[ASSETS.md](ASSETS.md). Kisshogi is not affiliated with ShogiHome.
+[ASSETS.md](ASSETS.md).

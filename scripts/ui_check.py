@@ -202,14 +202,47 @@ def assert_clean(session: PageSession) -> None:
         raise AssertionError(f"page errors: {session.errors}")
 
 
+def no_page_scroll(page) -> None:
+    metrics = page.evaluate(
+        "({scroll: document.documentElement.scrollHeight, inner: window.innerHeight})"
+    )
+    assert metrics["scroll"] <= metrics["inner"] + 1, metrics
+
+
+def layout_metrics(page) -> dict:
+    return page.evaluate(
+        """() => {
+            const board = document.querySelector('#board').getBoundingClientRect();
+            const hands = document.querySelector('#handStack').getBoundingClientRect();
+            return {
+                board: {x: board.x, y: board.y, width: board.width, height: board.height},
+                hands: {x: hands.x, y: hands.y, width: hands.width, height: hands.height},
+                inner: window.innerHeight,
+            };
+        }"""
+    )
+
+
 @check
 def check_initial_board(browser) -> None:
     with AppServer(base_config()) as server:
         session = PageSession(browser, server)
+        page = session.page
         try:
-            assert session.page.locator("#board button[data-square]").count() == 81
-            session.page.click("#newGameBtn")
-            assert session.page.evaluate("window.__kisshogiDebug.game.length") == 0
+            assert page.locator("#board button[data-square]").count() == 81
+            page.click("#newGameBtn")
+            assert page.evaluate("window.__kisshogiDebug.game.length") == 0
+
+            for width, height in ((1280, 800), (1366, 768), (1600, 900)):
+                page.set_viewport_size({"width": width, "height": height})
+                page.wait_for_timeout(120)
+                no_page_scroll(page)
+                metrics = layout_metrics(page)
+                assert metrics["board"]["y"] + metrics["board"]["height"] <= metrics["inner"] + 1, metrics
+                assert metrics["hands"]["x"] >= metrics["board"]["x"] + metrics["board"]["width"] - 1, metrics
+
+            clip = page.evaluate("getComputedStyle(document.querySelector('.piece')).clipPath")
+            assert clip.count(",") == 4, clip  # five vertices, not a hexagon
             assert_clean(session)
         finally:
             session.close()
@@ -296,6 +329,81 @@ def check_jishogi_impasse(browser) -> None:
 
 
 @check
+def check_pause_theme_and_config_path(browser) -> None:
+    from playwright.sync_api import expect
+
+    with AppServer(base_config()) as server:
+        session = PageSession(browser, server)
+        page = session.page
+        try:
+            page.set_viewport_size({"width": 1280, "height": 800})
+            page.click("#newGameBtn")
+            page.wait_for_function("() => window.__kisshogiDebug.game.clock.running === true", timeout=5000)
+            page.click("#pauseBtn")
+            page.wait_for_function("() => window.__kisshogiDebug.game.paused === true", timeout=5000)
+            assert "Game paused" in (page.text_content("#statusText") or "")
+            assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
+            page.wait_for_timeout(700)
+            assert page.evaluate("window.__kisshogiDebug.game.clock.running") is False
+            assert page.text_content("#pauseBtn") == "Resume game"
+
+            page.click("#pauseBtn")
+            page.wait_for_function("() => window.__kisshogiDebug.game.paused === false", timeout=5000)
+            assert page.evaluate("window.__kisshogiDebug.game.clock.running") is True
+            assert page.text_content("#pauseBtn") == "Pause game"
+
+            page.click('.tab[data-tab="settings"]')
+            config_path = page.text_content("#configPath") or ""
+            assert config_path.endswith("config.json"), config_path
+            expect(page.locator("#themeSelect")).to_have_value("classic")
+            page.select_option("#themeSelect", "dark")
+            page.wait_for_function("() => document.body.dataset.theme === 'dark'", timeout=5000)
+            wait_config(server, lambda cfg: cfg.get("ui", {}).get("theme") == "dark")
+            page.select_option("#themeSelect", "green")
+            page.wait_for_function("() => document.body.dataset.theme === 'green'", timeout=5000)
+
+            page.select_option("#languageSelect", "zh-CN")
+            page.wait_for_function("() => document.documentElement.lang === 'zh-CN'", timeout=10000)
+            assert "读秒" in (page.text_content("#clock-black-sub") or "")
+            assert_clean(session)
+        finally:
+            session.close()
+
+
+@check
+def check_analysis_panel(browser) -> None:
+    from playwright.sync_api import expect
+
+    config = base_config()
+    config["engines"]["analysis"] = {"path": str(FAKE_ENGINE), "options": {}}
+    with AppServer(config) as server:
+        session = PageSession(browser, server)
+        page = session.page
+        try:
+            page.set_viewport_size({"width": 1280, "height": 800})
+            page.click('.tab[data-tab="analysis"]')
+            page.click("#analysisToggle")
+            expect(page.locator(".analysis-line")).to_have_count(3, timeout=20000)
+            assert page.text_content("#analysisToggle") == "Stop"
+            assert page.locator(".mini-board .best-from").count() == 1
+            assert page.locator(".mini-board .best-to").count() == 1
+            assert "d12" in (page.text_content("#analysisBest") or "")
+
+            page.click("#analysisToggle")
+            expect(page.locator("#analysisStatus")).to_have_text("Stopped", timeout=5000)
+            expect(page.locator(".analysis-line")).to_have_count(3)
+            assert page.text_content("#analysisToggle") == "Analyze"
+            assert page.locator("#analysisPlayBtn").is_enabled()
+
+            page.click("#analysisPlayBtn")
+            page.wait_for_function("() => window.__kisshogiDebug.game.length === 1", timeout=5000)
+            assert page.evaluate("window.__kisshogiDebug.game.lastMove.usi") == "7g7f"
+            assert_clean(session)
+        finally:
+            session.close()
+
+
+@check
 def check_engine_options_restart(browser) -> None:
     from playwright.sync_api import expect
 
@@ -358,11 +466,31 @@ def check_batch_ponder(browser) -> None:
             page.click("#batchStart")
             expect(page.locator("#batchResults tbody tr")).to_have_count(1, timeout=60000)
             row = page.text_content("#batchResults tbody tr") or ""
-            assert "max-moves" in row, row
+            assert "maximum moves" in row, row
             traffic = server.engine_traffic()
             assert "go ponder" in traffic, traffic
             assert "ponderhit" in traffic, traffic
             assert traffic.count("go ponder") >= 2, traffic
+            assert_clean(session)
+        finally:
+            session.close()
+
+
+@check
+def check_quit_keeps_page_calm(browser) -> None:
+    with AppServer(base_config()) as server:
+        session = PageSession(browser, server)
+        page = session.page
+        try:
+            page.click("#quitButton")
+            page.wait_for_selector("#stoppedOverlay", timeout=5000)
+            # The heartbeat keeps firing after shutdown; it must not turn into
+            # a "server is not responding" error toast.
+            page.wait_for_timeout(6500)
+            toast = page.text_content("#toast") or ""
+            assert "not responding" not in toast, toast
+            assert page.locator("#stoppedOverlay").count() == 1
+            server.proc.wait(timeout=5)
             assert_clean(session)
         finally:
             session.close()

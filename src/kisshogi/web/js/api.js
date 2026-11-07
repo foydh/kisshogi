@@ -35,6 +35,7 @@ export async function request(path, { method = "GET", body, raw = false } = {}) 
 
 export const api = {
   config: () => request("/api/config"),
+  info: () => request("/api/info"),
   saveConfig: (config) => request("/api/config", { method: "PUT", body: config }),
   heartbeat: () => request("/api/heartbeat", { method: "POST", body: {} }),
   nativeReady: () => request("/api/native-ready", { method: "POST", body: {} }),

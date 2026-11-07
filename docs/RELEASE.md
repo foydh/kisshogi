@@ -38,6 +38,12 @@ and `SHA256SUMS.txt`. The released Linux binary was downloaded and
 smoke-tested; the Windows zip was inspected (it contains `kisshogi.exe` and
 docs only).
 
+## Post-0.1.0
+
+`main` contains the pause/analysis/theme/layout improvements and the native
+software-OpenGL launcher fix. Bump the version and tag `v0.1.1` when a new
+release is wanted; the release workflow is unchanged.
+
 ## Packaging decision (0.1.0)
 
 - The PyInstaller spec excludes pywebview/GI/PIL to keep one cross-platform

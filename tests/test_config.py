@@ -59,6 +59,12 @@ class ConfigTest(unittest.TestCase):
         self.assertNotIn("junk", cfg)
         self.assertEqual(json.loads(json.dumps(cfg))["mode"], "pvp")
 
+    def test_theme(self):
+        self.assertEqual(validate_config({})["ui"]["theme"], "classic")
+        self.assertEqual(validate_config({"ui": {"theme": "dark"}})["ui"]["theme"], "dark")
+        with self.assertRaises(ValueError):
+            validate_config({"ui": {"theme": "neon"}})
+
 
 if __name__ == "__main__":
     unittest.main()

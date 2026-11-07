@@ -19,8 +19,10 @@
   checks; it needs an executable bit and a POSIX shebang.
 - A local Nagisa engine was used only for manual/UI testing. Do not add its path
   to tracked files; use an environment variable or local config.
-- The container's pywebview/WebKit fails due MESA/DRM; native launch falls back
-  after a 15s watchdog. Test native on a real desktop.
+- On Linux the native child gets `LIBGL_ALWAYS_SOFTWARE=1` and
+  `WEBKIT_DISABLE_DMABUF_RENDERER=1` by default. Native launch works in this
+  container with those defaults; a real desktop should still be checked for
+  window-close behavior.
 
 ## Quick commands
 
@@ -39,12 +41,12 @@ with `?debug` (used by `scripts/ui_check.py`).
 
 ## Immediate next steps
 
-1. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
+1. `main` contains post-`v0.1.0` UI improvements. Tag `v0.1.1` (after CI)
+   if a new release is wanted; the release workflow is unchanged.
+2. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
    the current onefile binaries intentionally use the browser fallback.
-2. Validate the native pywebview window and the Windows binary on real
-   desktops; this sandbox cannot do either.
-3. Optional polish: refresh screenshots after the UI changes, and add release
-   notes for the next version.
+3. Validate the native window close behavior and the Windows binary on real
+   desktops.
 
 ## Important constraints
 

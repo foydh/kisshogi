@@ -43,9 +43,13 @@
       </div>
 
       <div class="board-area">
-        <div id="whiteHand" class="hand-row hand-white" aria-label="White hand"></div>
-        <div id="board" class="board" role="grid" aria-label="Shogi board"></div>
-        <div id="blackHand" class="hand-row hand-black" aria-label="Black hand"></div>
+        <div class="board-frame">
+          <div id="board" class="board" role="grid" aria-label="Shogi board"></div>
+          <div id="handStack" class="hand-stack">
+            <div id="whiteHand" class="hand-row hand-white" aria-label="White hand"></div>
+            <div id="blackHand" class="hand-row hand-black" aria-label="Black hand"></div>
+          </div>
+        </div>
       </div>
 
       <div class="status-row">
@@ -132,6 +136,7 @@
 
         <div class="button-grid">
           <button id="newGameBtn" type="button" class="primary" data-i18n="game.newGame">New game</button>
+          <button id="pauseBtn" type="button" data-i18n="game.pauseGame">Pause game</button>
           <button id="undoBtn" type="button" data-i18n="game.undo">Undo</button>
           <button id="resignBtn" type="button" class="danger" data-i18n="game.resign">Resign</button>
           <button id="flipBtn" type="button" data-i18n="game.flip">Flip board</button>
@@ -173,9 +178,16 @@
           <label class="inline-check"><input id="analysisAuto" type="checkbox"> <span data-i18n="analysis.follow">Follow position</span></label>
         </div>
         <div class="row">
-          <button id="analysisStart" type="button" class="primary" data-i18n="analysis.start">Analyze</button>
-          <button id="analysisStop" type="button" data-i18n="analysis.stop">Stop</button>
+          <button id="analysisToggle" type="button" class="primary" data-i18n="analysis.start">Analyze</button>
           <span id="analysisStatus" class="muted"></span>
+        </div>
+        <div class="analysis-board-panel">
+          <div id="analysisBoard" class="mini-board" role="img" data-i18n-aria-label="analysis.board" aria-label="Analysis board"></div>
+          <div class="analysis-board-side">
+            <div class="analysis-best-label" data-i18n="analysis.bestMove">Best move</div>
+            <div id="analysisBest" class="analysis-best muted">—</div>
+            <button id="analysisPlayBtn" type="button" data-i18n="analysis.play">Play best move</button>
+          </div>
         </div>
         <div id="analysisLines" class="analysis-lines"></div>
         <div class="graph-header">
@@ -217,12 +229,28 @@
       </section>
 
       <section class="panel" data-panel="settings">
-        <div id="engineCards" class="engine-cards"></div>
+        <div class="config-info">
+          <span class="config-info-label" data-i18n="settings.configPath">Configuration file</span>
+          <div class="config-info-value">
+            <code id="configPath"></code>
+            <button id="copyConfigPath" type="button" data-i18n="settings.copyPath">Copy path</button>
+          </div>
+        </div>
         <div class="field-grid two">
+          <label><span data-i18n="settings.theme">Theme</span>
+            <select id="themeSelect" class="select">
+              <option value="classic" data-i18n="theme.classic">Classic</option>
+              <option value="dark" data-i18n="theme.dark">Dark</option>
+              <option value="green" data-i18n="theme.green">Green</option>
+              <option value="paper" data-i18n="theme.paper">Paper</option>
+            </select>
+          </label>
           <label class="inline-check"><input id="coordinatesToggle" type="checkbox"> <span data-i18n="settings.coordinates">Show coordinates</span></label>
+        </div>
+        <div id="engineCards" class="engine-cards"></div>
+        <div class="row actions">
           <button id="quitButton2" type="button" class="danger" data-i18n="app.quit">Quit</button>
         </div>
-        <p class="muted small" data-i18n="settings.engineHint">Engines are not distributed with Kisshogi. Paths are stored only in your local config and are never packaged.</p>
       </section>
     </aside>
   </main>

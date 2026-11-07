@@ -8,7 +8,7 @@ python -m unittest discover -s tests -v
 node --test tests/js/*.test.mjs
 ```
 
-Current result: 30 Python tests and 29 JavaScript tests pass.
+Current result: 32 Python tests and 31 JavaScript tests pass.
 
 Coverage highlights:
 - USI option (all types), info cp/mate/bound/PV, bestmove.
@@ -23,6 +23,9 @@ Coverage highlights:
 - Locale key parity and HTML key/id checks.
 - Batch Ponder state machine: hit, miss, stop/restart, and normal play against
   a mocked USI API (`tests/js/batch.test.mjs`).
+- Pause/resume clock behavior and analysis moves while paused
+  (`tests/js/game.test.mjs`).
+- Theme validation and the `/api/info` config-path endpoint.
 
 ## Browser/UI
 
@@ -41,18 +44,25 @@ fixed legal opening and logs its protocol traffic. It opens the page with
 `?debug` to reach `window.__kisshogiDebug`.
 
 Covered checks:
+- Layout at 1280x800, 1366x768, and 1600x900: no page scroll, board fits,
+  hands sit to the right, and pieces use five vertices.
 - Initial board (81 squares) and New game.
 - Position editor apply; invalid positions show an inline reason and leave the
   game unchanged.
 - 27-point entering-king declaration through the real dialog and result text.
 - 24-point jishogi adjudication (impasse) through the real dialog.
+- Pause/resume: clocks stop without resetting, and the button label toggles.
+- Settings: config path, theme switch (persisted), coordinates.
+- Analysis: Analyze/Stop toggle, three lines, mini board, output kept after
+  stop, and playing the best move onto the board.
 - Engine options: probe, edit `Threads`, Restart (stop + start), applied
   options, persisted config, and received `setoption` traffic.
 - Batch game with Ponder: result table, `go ponder`, and `ponderhit`.
+- Quit: stopped overlay appears and no false "server not responding" toast.
 
 These checks need a POSIX executable fake engine (Linux/macOS). The previous
-manual Nagisa flows (43 options, PvE, analysis, KIF import, language switch,
-two-game batch) are recorded in `PROGRESS.md`.
+manual Nagisa flows (43 options, PvE, KIF import, language switch, two-game
+batch) are recorded in `PROGRESS.md`.
 
 ## Binary smoke
 
@@ -68,4 +78,5 @@ fallback.
 
 - Native window close exits all processes on a real desktop.
 - Windows binary.
-- Native pywebview on real Linux/Windows desktops.
+- Native window on a real Linux/Windows desktop. The launcher forces software
+  OpenGL on Linux, which was verified in this container.

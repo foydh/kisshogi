@@ -85,6 +85,13 @@ def _terminate(proc: subprocess.Popen | None) -> None:
 def _launch_native(url: str, debug: bool) -> subprocess.Popen:
     env = dict(os.environ)
     env["KISSHOGI_NATIVE_HOST"] = "1"
+    if os.name != "nt" and sys.platform.startswith("linux"):
+        # WebKitGTK often cannot create a GPU surface under VMs, remote
+        # desktops, and some Wayland/X11 driver stacks.  Software GL is
+        # plenty for a shogi board and makes the native window reliable;
+        # users with a working driver can override these values.
+        env.setdefault("LIBGL_ALWAYS_SOFTWARE", "1")
+        env.setdefault("WEBKIT_DISABLE_DMABUF_RENDERER", "1")
     kwargs = {}
     if os.name == "nt":
         kwargs["creationflags"] = CREATE_NO_WINDOW
@@ -100,6 +107,8 @@ def _native_failure_help() -> str:
         "Kisshogi could not start the native window.\n"
         "On Linux install PyGObject and WebKitGTK 4.1, then use a venv with "
         "--system-site-packages. On Windows install the WebView2 runtime.\n"
+        "Kisshogi already forces software OpenGL on Linux as a fallback; the "
+        "messages above usually identify the remaining driver or display issue.\n"
         "Use --browser to run in the system browser instead."
     )
 
@@ -128,6 +137,14 @@ def main(argv: list[str] | None = None) -> int:
     if args.native and not native_available:
         print(_native_failure_help(), file=sys.stderr, flush=True)
         return 2
+    if not args.browser and not args.no_browser and not native_available:
+        print(
+            "pywebview is not installed; using the system browser. "
+            "Install Kisshogi with the native extra for a desktop window "
+            "(pip install 'kisshogi[native]').",
+            file=sys.stderr,
+            flush=True,
+        )
     want_native = not args.browser and not args.no_browser and native_available
     app = Application(
         config,
@@ -163,7 +180,15 @@ def main(argv: list[str] | None = None) -> int:
             except OSError as exc:
                 log.error("could not launch native host: %s", exc)
                 native_proc = None
-            ready = app.native_ready.wait(15.0) if native_proc else False
+            ready = False
+            if native_proc:
+                deadline = time.monotonic() + 15.0
+                while time.monotonic() < deadline:
+                    if app.native_ready.wait(0.1):
+                        ready = True
+                        break
+                    if native_proc.poll() is not None:
+                        break
             if ready and native_proc and native_proc.poll() is None:
                 native_used = True
                 while native_proc.poll() is None and not app.stop_event.is_set():
@@ -178,7 +203,12 @@ def main(argv: list[str] | None = None) -> int:
                 if args.native:
                     print(_native_failure_help(), file=sys.stderr, flush=True)
                     return 2
-                print("Native window unavailable; falling back to the system browser.", file=sys.stderr, flush=True)
+                print(
+                    "Native window unavailable; using the system browser. "
+                    "Run with --native for installation hints or --browser to skip this check.",
+                    file=sys.stderr,
+                    flush=True,
+                )
         if not native_used and not args.no_browser:
             _open_browser(app.url)
             try:

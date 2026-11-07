@@ -12,6 +12,8 @@
 - tsshogi 2.3.4 vendored under `src/kisshogi/web/vendor/tsshogi`.
 - No engine/weights are part of the project. Local engine tests used a Nagisa
   binary via local config or an environment variable; no path is committed.
-- The sandbox's pywebview/WebKit fails with MESA/DRM; the native-parent watchdog
-  falls back to browser after 15s. Do not treat that as a code failure without
-  retesting on a real desktop.
+- With `LIBGL_ALWAYS_SOFTWARE=1` (set by the launcher on Linux) the native
+  WebKit window starts in this container instead of failing on MESA/DRM. The
+  dconf "Read-only file system" warnings are environmental and harmless.
+- UI checks: `PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers"
+  python scripts/ui_check.py`.

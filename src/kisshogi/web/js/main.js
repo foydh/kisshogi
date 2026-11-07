@@ -23,6 +23,7 @@ import { GraphView } from "./graph-view.js";
 import { PositionEditor } from "./position-editor.js";
 import { EngineOptionsPanel } from "./options-form.js";
 import { BatchRunner } from "./batch-runner.js";
+import { MiniBoard } from "./mini-board.js";
 import {
   detectFormat,
   downloadText,
@@ -46,6 +47,7 @@ let batch = null;
 let optionsPanel = null;
 let evalStore = null;
 let graphView = null;
+let miniBoard = null;
 let lastGameId = null;
 let lastLength = 0;
 let selected = null;
@@ -57,6 +59,10 @@ let lastStatuses = {};
 let batchResults = [];
 let heartbeatFailures = 0;
 let initialized = false;
+let quitting = false;
+let heartbeatTimer = 0;
+let clockTimer = 0;
+let statusTimer = 0;
 
 function persistConfig() {
   clearTimeout(saveTimer);
@@ -134,11 +140,19 @@ function render() {
   renderMini();
   updateModeBadge();
   renderEngineDots();
+  renderAnalysisBoard();
 }
 
 function updateModeBadge() {
   const labels = { pvp: t("mode.pvp"), pve: t("mode.pve"), eve: t("mode.eve") };
   $("#modeBadge").textContent = labels[config.mode] || config.mode;
+}
+
+function applyTheme() {
+  const theme = config?.ui?.theme || "classic";
+  document.body.dataset.theme = theme;
+  const select = $("#themeSelect");
+  if (select) select.value = theme;
 }
 
 function renderClocks() {
@@ -157,10 +171,9 @@ function renderClocks() {
     const showTenths = displayMs <= 10000;
     $(`#clock-${color}-time`).textContent = formatClock(displayMs, showTenths);
     const parts = [];
-    if (data.mode === "byoyomi") parts.push(`${t("time.byoyomi")} ${Math.ceil((data.byoyomiMs || 0) / 1000)}s`);
-    else if (data.mode === "increment") parts.push(`+${Math.round((data.incrementMs || 0) / 1000)}s`);
+    if (data.mode === "byoyomi") parts.push(`${t("time.byoyomi")} ${Math.ceil((data.byoyomiMs || 0) / 1000)} ${t("time.seconds")}`);
+    else if (data.mode === "increment") parts.push(`+${Math.round((data.incrementMs || 0) / 1000)} ${t("time.seconds")}`);
     else parts.push(t("time.mainMode"));
-    if (data.mainMs <= 0 && data.mode === "byoyomi") parts.unshift(t("time.byoyomiMode"));
     $(`#clock-${color}-sub`).textContent = parts.join(" · ");
   }
 }
@@ -170,13 +183,15 @@ function renderStatus() {
   let status = "";
   if (game.result) {
     status = t("status.gameOver");
+  } else if (game.paused) {
+    status = t("status.gamePaused");
   } else if (!game.isLatest) {
     status = t("status.paused", { ply: game.currentPly });
   } else {
     status = game.currentColor === Color.BLACK ? t("status.blackToMove") : t("status.whiteToMove");
     if (game.position.checked) status += ` · ${t("status.check")}`;
   }
-  if (!game.result) {
+  if (!game.result && !game.paused) {
     const blackState = lastStatuses.black?.state;
     const whiteState = lastStatuses.white?.state;
     if (blackState === "pondering" || whiteState === "pondering") status += ` · ${t("status.pondering")}`;
@@ -283,10 +298,77 @@ function formatAnalysisScore(info) {
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
 }
 
+function topAnalysisLine() {
+  if (!analysis?.lines) return null;
+  const entries = [...analysis.lines.entries()].sort((a, b) => a[0] - b[0]);
+  return entries[0]?.[1] || null;
+}
+
+function analysisBestMove() {
+  if (!game) return null;
+  const info = topAnalysisLine();
+  const usi = info?.pv?.[0];
+  if (!usi) return null;
+  const move = game.position.createMoveByUSI(usi);
+  if (!move || !game.position.isValidMove(move)) return null;
+  return move;
+}
+
+function renderAnalysisBoard() {
+  if (!miniBoard || !game) return;
+  const info = topAnalysisLine();
+  const move = analysisBestMove();
+  miniBoard.render(game.position, {
+    best: move,
+    flip: Boolean(config.ui?.flip),
+    checked: game.position.checked,
+  });
+  const best = $("#analysisBest");
+  if (best) {
+    best.textContent = info?.pv?.length
+      ? `${formatAnalysisScore(info)}  ${pvNotation(game.position, info.pv)}${info.depth ? `  d${info.depth}` : ""}`
+      : "—";
+  }
+  const play = $("#analysisPlayBtn");
+  if (play) play.disabled = !move || Boolean(game.result) || Boolean(batch?.running);
+}
+
+function renderAnalysisToggle() {
+  const button = $("#analysisToggle");
+  if (!button || !analysis) return;
+  const running = Boolean(analysis.running);
+  button.textContent = t(running ? "analysis.stop" : "analysis.start");
+  button.classList.toggle("primary", !running);
+  button.classList.toggle("danger", running);
+}
+
+function playAnalysisMove() {
+  if (!game) return;
+  if (game.result) {
+    toast(t("toast.gameOver"));
+    return;
+  }
+  const move = analysisBestMove();
+  if (!move) {
+    toast(t("analysis.bestEmpty"), "error");
+    return;
+  }
+  const result = game.playMove(move);
+  if (!result.ok) {
+    toast(t("toast.illegalMove"), "error");
+    return;
+  }
+  toast(t("analysis.movePlayed"), "ok");
+  render();
+}
+
 function renderButtons() {
   const busy = Boolean(batch?.running);
+  const paused = Boolean(game.paused);
   $("#newGameBtn").disabled = busy;
-  $("#undoBtn").disabled = busy || !game.length || !game.isLatest;
+  $("#pauseBtn").textContent = t(paused ? "game.resumeGame" : "game.pauseGame");
+  $("#pauseBtn").disabled = busy || Boolean(game.result);
+  $("#undoBtn").disabled = busy || paused || !game.length || !game.isLatest;
   $("#resignBtn").disabled = busy || Boolean(game.result);
   $("#continueBtn").disabled = busy || (game.isLatest && game.autoPlay) || Boolean(game.result);
   $("#editPositionBtn").disabled = busy;
@@ -294,7 +376,7 @@ function renderButtons() {
   $("#impasseBtn").disabled = busy || Boolean(game.result) || config.jishogiRule !== "general24";
   $("#batchStart").disabled = busy;
   $("#batchStop").disabled = !busy;
-  $("#analysisStart").disabled = false;
+  $("#analysisToggle").disabled = busy;
   $("#modeSelect").disabled = busy;
   $("#engineSideSelect").disabled = busy;
   $("#maxMovesInput").disabled = busy;
@@ -305,7 +387,7 @@ function renderMini() {
     const el = $(`#engine-mini-${role}`);
     if (!el) continue;
     const status = lastStatuses[role];
-    const label = { black: "Black", white: "White", analysis: "Analysis" }[role];
+    const label = { black: t("color.black"), white: t("color.white"), analysis: t("engine.analysis") }[role];
     el.textContent = status?.name
       ? `${label}: ${status.name} (${t(`engine.state.${status.state}`) || status.state})`
       : `${label}: ${t("status.noEngine")}`;
@@ -341,6 +423,7 @@ function onGameChange() {
   if (changedGame) {
     evalStore.clear();
     analysis?.lines?.clear?.();
+    renderAnalysisLines(analysis?.lines || new Map());
     batchResults = batchResults;
   }
   if (game.length < lastLength) evalStore.clearFrom(game.currentPly + 1);
@@ -361,6 +444,7 @@ function setupBoard() {
       board: $("#board"),
       blackHand: $("#blackHand"),
       whiteHand: $("#whiteHand"),
+      handStack: $("#handStack"),
       coordinates: config.ui?.coordinates,
     },
     {
@@ -377,6 +461,7 @@ function handleSquare(square) {
   }
   if (batch?.running) return;
   if (game.result) { toast(t("toast.gameOver")); return; }
+  if (game.paused) { toast(t("toast.gamePaused")); return; }
   if (game.isEngineTurn()) return;
 
   if (selectedHand) {
@@ -437,7 +522,10 @@ function handleSquare(square) {
 }
 
 function handleHand(color, type) {
-  if (editor?.active || game.result || game.isEngineTurn() || color !== game.currentColor) return;
+  if (editor?.active || game.result || game.paused || game.isEngineTurn() || color !== game.currentColor) {
+    if (game.paused) toast(t("toast.gamePaused"));
+    return;
+  }
   if (selectedHand === type && selectedHandColor === color) {
     selectedHand = null;
     selectedHandColor = null;
@@ -518,6 +606,7 @@ function syncSettings() {
   $("#batchGames").value = String(config.batch?.games ?? 10);
   $("#batchSwap").checked = config.batch?.swapColors !== false;
   $("#batchSfens").value = (config.batch?.startSfens || []).join("\n");
+  $("#themeSelect").value = config.ui?.theme || "classic";
   $("#analysisAuto").checked = true;
 }
 
@@ -553,8 +642,29 @@ function flip() {
   render();
 }
 
+function showStoppedOverlay() {
+  if ($("#stoppedOverlay")) return;
+  const overlay = document.createElement("div");
+  overlay.id = "stoppedOverlay";
+  overlay.className = "stopped-overlay";
+  const box = document.createElement("div");
+  box.className = "stopped-box";
+  const title = document.createElement("h2");
+  title.textContent = t("app.stoppedTitle");
+  const body = document.createElement("p");
+  body.textContent = t("app.stoppedBody");
+  box.append(title, body);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
 function quit() {
-  toast(t("toast.quit"));
+  if (quitting) return;
+  quitting = true;
+  clearInterval(heartbeatTimer);
+  clearInterval(clockTimer);
+  clearInterval(statusTimer);
+  showStoppedOverlay();
   api.quit().catch(() => {});
 }
 
@@ -636,11 +746,15 @@ function renderBatch() {
   box.replaceChildren();
   if (!batchResults.length) return;
   const table = document.createElement("table");
-  table.innerHTML = "<thead><tr><th>#</th><th>Black</th><th>White</th><th>Result</th><th>Moves</th></tr></thead><tbody></tbody>";
+  table.innerHTML = `<thead><tr><th>#</th><th>${t("color.black")}</th><th>${t("color.white")}</th><th>${t("batch.result")}</th><th>${t("batch.moves")}</th></tr></thead><tbody></tbody>`;
   const tbody = table.querySelector("tbody");
   for (const r of batchResults) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${r.index}</td><td>${r.black}</td><td>${r.white}</td><td>${r.winner} (${r.reason})</td><td>${r.moves}</td>`;
+    const winner = r.winner === "draw"
+      ? t("result.drawShort")
+      : r.winner === "aborted" ? t("batch.aborted") : r.winner;
+    const reason = t(resultLabelKey(r.reason));
+    tr.innerHTML = `<td>${r.index}</td><td>${r.black}</td><td>${r.white}</td><td>${winner} (${reason})</td><td>${r.moves}</td>`;
     tbody.appendChild(tr);
   }
   box.appendChild(table);
@@ -702,6 +816,8 @@ async function changeLanguage(value) {
   setupTimeControls();
   syncSettings();
   render();
+  renderAnalysisToggle();
+  renderAnalysisBoard();
   toast(`${t("language.label")}: ${value === "auto" ? t("language.auto") : value}`);
 }
 
@@ -712,7 +828,7 @@ function bindUi() {
       for (const el of $$(".tab")) el.classList.toggle("active", el === tab);
       for (const panel of $$(".panel")) panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab);
       if (tab.dataset.tab === "settings") refreshStatuses();
-      if (tab.dataset.tab === "analysis") renderGraph();
+      if (tab.dataset.tab === "analysis") { renderGraph(); renderAnalysisBoard(); }
     });
   }
   $("#modeSelect").addEventListener("change", (event) => {
@@ -745,6 +861,13 @@ function bindUi() {
     render();
   });
   $("#newGameBtn").addEventListener("click", newGame);
+  $("#pauseBtn").addEventListener("click", () => {
+    if (game.result) return;
+    if (game.paused) game.resumeGame();
+    else { engine?.stopAllThinking(); game.pauseGame(); }
+    render();
+    engine?.onGameChange();
+  });
   $("#undoBtn").addEventListener("click", undo);
   $("#resignBtn").addEventListener("click", () => { engine?.stopAllThinking(); game.resign(); render(); });
   $("#flipBtn").addEventListener("click", flip);
@@ -759,8 +882,8 @@ function bindUi() {
   $("#impasseBtn").addEventListener("click", () => {
     const info = game.evaluateImpasse();
     const lines = info.ok
-      ? [`Black: ${info.black}`, `White: ${info.white}`]
-      : [`Black: ${info.black ?? "-"}`, `White: ${info.white ?? "-"}`, info.reason || ""];
+      ? [`${colorName(Color.BLACK)}: ${info.black}`, `${colorName(Color.WHITE)}: ${info.white}`]
+      : [`${colorName(Color.BLACK)}: ${info.black ?? "-"}`, `${colorName(Color.WHITE)}: ${info.white ?? "-"}`, info.reason || ""];
     if (!info.ok) { infoDialog(t("game.impasse"), lines); return; }
     confirmDialog(t("game.impasse"), lines.join("\n")).then((ok) => {
       if (ok) { game.applyImpasse(); render(); }
@@ -773,6 +896,13 @@ function bindUi() {
     persistConfig();
     render();
   });
+  $("#themeSelect").addEventListener("change", (event) => {
+    config.ui.theme = event.target.value;
+    applyTheme();
+    persistConfig();
+    render();
+  });
+  $("#copyConfigPath").addEventListener("click", () => copyText($("#configPath").textContent || ""));
   $("#kifuFile").addEventListener("change", (event) => {
     const file = event.target.files?.[0];
     if (file) importKifu(file);
@@ -784,8 +914,12 @@ function bindUi() {
   });
   $("#copySfenBtn").addEventListener("click", () => copyText(game.position.sfen));
   $("#copyUsiBtn").addEventListener("click", () => copyText(game.record.getUSI()));
-  $("#analysisStart").addEventListener("click", () => analysis.start());
-  $("#analysisStop").addEventListener("click", () => analysis.stop());
+  $("#analysisToggle").addEventListener("click", () => {
+    if (analysis.running) analysis.stop();
+    else analysis.start();
+    renderAnalysisToggle();
+  });
+  $("#analysisPlayBtn").addEventListener("click", playAnalysisMove);
   $("#analysisAuto").addEventListener("change", (event) => analysis.setFollow(event.target.checked));
   $("#analysisMultiPV").addEventListener("change", (event) => {
     config.analysis.multipv = Math.max(1, Math.min(8, Number(event.target.value) || 3));
@@ -807,7 +941,7 @@ function bindUi() {
   $("#batchCsv").addEventListener("click", batchCsv);
 
   window.addEventListener("pagehide", (event) => {
-    if (event.persisted) return;
+    if (event.persisted || quitting) return;
     try {
       fetch("/api/pagehide", {
         method: "POST",
@@ -817,26 +951,34 @@ function bindUi() {
       }).catch(() => {});
     } catch { /* ignore */ }
   });
-  setInterval(() => {
+  heartbeatTimer = setInterval(() => {
+    if (quitting) return;
     api.heartbeat().then(() => { heartbeatFailures = 0; }).catch(() => {
+      if (quitting) return;
       heartbeatFailures += 1;
       if (heartbeatFailures === 1) toast(t("toast.connectionLost"), "error");
     });
   }, 5000);
-  setInterval(() => {
-    if (!game || game.result) return;
+  clockTimer = setInterval(() => {
+    if (quitting || !game || game.result || game.paused) return;
     game.onClockTimeout();
     renderClocks();
     if (game.result) { render(); engine?.onGameChange(); }
   }, 100);
-  setInterval(refreshStatuses, 2500);
+  statusTimer = setInterval(() => {
+    if (!quitting) refreshStatuses();
+  }, 2500);
 }
 
 async function init() {
   config = await api.config();
-  config.ui ||= { flip: false, coordinates: true };
+  config.ui ||= { flip: false, coordinates: true, theme: "classic" };
+  if (!config.ui.theme) config.ui.theme = "classic";
   config.analysis ||= { multipv: 3, scanMs: 500 };
   config.batch ||= { games: 10, swapColors: true, startSfens: [] };
+  applyTheme();
+  const info = await api.info().catch(() => null);
+  if (info?.configPath) $("#configPath").textContent = info.configPath;
   await loadLocale(config.language || "auto");
   applyStaticTranslations();
   game = new GameController({
@@ -851,6 +993,7 @@ async function init() {
   setupBoard();
   setupEditor();
   graphView = new GraphView($("#evalGraph"), (ply) => { game.goto(ply); render(); });
+  miniBoard = new MiniBoard($("#analysisBoard"));
   engine = new EngineController({
     game,
     getConfig: () => config,
@@ -871,10 +1014,15 @@ async function init() {
   analysis = new AnalysisController({
     game,
     getConfig: () => config,
-    onLines: (lines) => renderAnalysisLines(lines),
+    onLines: (lines) => {
+      renderAnalysisLines(lines);
+      renderAnalysisBoard();
+    },
     onStatus: (status) => {
       $("#analysisStatus").textContent = status?.state ? (t(`engine.state.${status.state}`) || status.state) : "";
       if (status?.error) $("#analysisStatus").textContent = status.error;
+      renderAnalysisToggle();
+      renderAnalysisBoard();
     },
     onEval: (info, ply, sfen, source) => {
       if (!info?.score) return;
@@ -886,6 +1034,8 @@ async function init() {
     },
   });
   analysis.follow = true;
+  renderAnalysisLines(analysis.lines);
+  renderAnalysisToggle();
   batch = new BatchRunner({
     game,
     getConfig: () => config,

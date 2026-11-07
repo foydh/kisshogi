@@ -34,6 +34,7 @@ export class GameController {
     this.mode = "pvp";
     this.engineSide = Color.WHITE;
     this.autoPlay = false;
+    this.paused = false;
     this.result = null;
     this.subscribers = new Set();
     this._lastMove = null;
@@ -72,6 +73,7 @@ export class GameController {
     this.result = null;
     this._lastMove = null;
     this.gameId += 1;
+    this.paused = false;
     this.autoPlay = autoPlay;
     this.clock.setTimeControl(this.timeControl);
     this.clock.reset();
@@ -86,6 +88,7 @@ export class GameController {
     this.record.goto(this.record.length);
     this.gameId += 1;
     this.result = this._resultFromRecord();
+    this.paused = false;
     this.autoPlay = false;
     this.clock.setTimeControl(this.timeControl);
     this.clock.reset();
@@ -103,6 +106,7 @@ export class GameController {
     this.record = record;
     this.gameId += 1;
     this.result = null;
+    this.paused = false;
     this.autoPlay = false;
     this.clock.setTimeControl(this.timeControl);
     this.clock.reset();
@@ -127,9 +131,28 @@ export class GameController {
   setMode(mode, engineSide = this.engineSide) {
     this.mode = mode;
     this.engineSide = engineSide;
+    this.paused = false;
     this.autoPlay = false;
     this.clock.pause();
     this.emit();
+  }
+
+  pauseGame() {
+    if (this.paused || this.result) return false;
+    this.paused = true;
+    this.autoPlay = false;
+    this.clock.pause();
+    this.emit();
+    return true;
+  }
+
+  resumeGame() {
+    if (!this.paused || this.result) return false;
+    this.paused = false;
+    this.autoPlay = true;
+    if (this.mode === "pvp" || this.isHumanTurn()) this.clock.arm(this.currentColor);
+    this.emit();
+    return true;
   }
 
   legalMoves() { return allLegalMoves(this.position); }
@@ -162,7 +185,7 @@ export class GameController {
   }
 
   _armNextClock() {
-    if (this.result) return;
+    if (this.result || this.paused) return;
     if (!this.isLatest) return;
     if (this.mode === "pvp" || this.isHumanTurn()) this.clock.arm(this.currentColor);
     else this.clock.stop();
@@ -215,7 +238,7 @@ export class GameController {
   }
 
   onClockTimeout() {
-    if (this.result) return;
+    if (this.result || this.paused) return;
     const color = this.clock.checkTimeout();
     if (!color) return;
     this._finishTimeout(color);
@@ -243,7 +266,7 @@ export class GameController {
     this.result = null;
     this.autoPlay = this.mode !== "pvp" ? this.autoPlay : this.autoPlay;
     this._lastMove = this.record.current?.move || null;
-    if (this.mode === "pvp" || this.isHumanTurn()) this.clock.arm(this.currentColor);
+    if (!this.paused && (this.mode === "pvp" || this.isHumanTurn())) this.clock.arm(this.currentColor);
     else this.clock.stop();
     // PvE undo should return to the human turn, but that is handled by the UI
     // calling undo repeatedly (max 2). Kept small and predictable here.
@@ -265,6 +288,7 @@ export class GameController {
       this.emit();
       return;
     }
+    this.paused = false;
     this.autoPlay = true;
     if (this.mode === "pvp" || this.isHumanTurn()) this.clock.arm(this.currentColor);
     else this.clock.stop();

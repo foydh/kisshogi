@@ -5,9 +5,10 @@ Last updated: 2026-11-08 (Asia/Shanghai)
 ## Overall status
 
 The core application is implemented and runnable. Automated Python and
-JavaScript tests pass, and a tracked Playwright suite now covers the flows that
-were previously only checked by hand: position editor apply/validation, both
-jishogi dialogs, engine option restart, and batch games with Ponder.
+JavaScript tests pass, and a tracked Playwright suite covers the UI flows that
+were previously hand-checked: board layout, editor apply/validation, both
+jishogi dialogs, pause/resume, themes and config path, analysis, engine option
+restart, batch games with Ponder, and the Quit flow.
 
 ## Completed
 
@@ -16,8 +17,9 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
 - Browser lifecycle: heartbeat, `pagehide` 5s shutdown, 120s watchdog,
   explicit Quit.
 - Native launcher via pywebview child process with readiness handshake and
-  browser fallback. In this container WebKitGTK/MESA hangs, so the fallback was
-  verified; native UI still needs testing on a normal desktop.
+  browser fallback. On Linux the child runs with software OpenGL by default;
+  this made the native window start successfully in this container instead of
+  hitting the old MESA/DRM hang.
 - USI engine manager: handshake, options, probe, ready, go, stop, newgame,
   event polling, error/timeout handling.
 - Three engine slots (Black/White/Analysis), independent sessions.
@@ -33,10 +35,21 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
 - Game controller: history, branch truncation, undo, resign, declaration,
   jishogi adjudication, max moves.
 - Board/hands UI, promotion dialog, clocks, status, coordinates.
+- Pause/resume freezes the clocks and engine turns without discarding the game.
+- Traditional right-side hand trays; five-sided piece shape; board sized to fit
+  the viewport at 1280x800/1366x768/1600x900 without page scrolling.
+- Four themes (classic, dark, green, paper), persisted in the local config.
+- The settings panel shows the local config file path and can copy it.
+- Quit shows a clean stopped overlay instead of a false "server not responding"
+  toast after the server has already shut down.
 - KIF/KI2/CSA/SFEN import; UTF-8/Shift_JIS export via backend encode.
 - Position editor with legality validation and an inline reason when Apply
   fails (no more toast-only feedback).
 - Analysis panel: MultiPV, live info, full-game scan; SVG eval graph.
+- Analysis has one Analyze/Stop toggle, keeps the last output after stopping,
+  renders the best move on a mini board, and can play that move onto the board.
+- README files are user-facing only: development, test, and release-process
+  sections were removed or moved to `docs/`.
 - Batch EvE: color swap, start SFEN cycling, summary, CSV.
 - i18n en/zh-CN/ja; original CSS art; bundled Noto CJK subsets.
 - CI workflows and PyInstaller spec; 8.2 MB Linux onefile smoke-tested.
@@ -48,32 +61,34 @@ jishogi dialogs, engine option restart, and batch games with Ponder.
 
 ## Test evidence
 
-- `python -m unittest discover -s tests -v`: 30 tests, OK.
-- `node --test tests/js/*.test.mjs`: 29 tests, OK. This includes batch Ponder
-  hit and miss paths with a mocked USI API.
+- `python -m unittest discover -s tests -v`: 32 tests, OK.
+- `node --test tests/js/*.test.mjs`: 31 tests, OK. This includes pause/resume,
+  and batch Ponder hit and miss paths with a mocked USI API.
 - `PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers" python scripts/ui_check.py`:
-  6 checks, OK (initial board, editor apply + inline validation, declaration,
-  impasse, options restart, batch Ponder).
+  9 checks, OK (layout/scroll, editor apply + inline validation, declaration,
+  impasse, pause + theme + config path, analysis panel, options restart, batch
+  Ponder, Quit).
 - `python scripts/smoke.py dist/kisshogi`: OK.
 - Released Linux artifact downloaded and smoke-tested from the GitHub release:
   OK. The Windows zip contains only `kisshogi.exe` plus the expected docs;
   neither archive contains engines, books, configs, or logs.
 - Playwright UI checks use `tests/ui/fake_engine.py`, a deterministic USI test
   double that follows a fixed legal opening and logs protocol traffic.
-- Native launch in this sandbox fails inside WebKit and falls back to browser
-  after the 15-second readiness timeout. The parent/child watchdog works.
+- Native launch in this container stays up with software OpenGL enabled by the
+  launcher; the readiness handshake works. A real desktop still needs a manual
+  window-close check.
 
 ## Known gaps / next work
 
 1. **Native release packaging**: the 0.1.0 binaries stay browser-fallback (see
    `RELEASE.md`). A separate Windows native bundle is the best candidate but
    needs WebView2/pythonnet packaging and testing on Windows.
-2. **Native pywebview** must be validated on a real Linux/Windows desktop; the
-   sandbox's WebKit/MESA issue is environmental.
+2. **Native pywebview** window close should still be checked on a real
+   Linux/Windows desktop.
 3. **Windows binary** is built by CI and packaged, but has not been launched on
    Windows here.
-4. **Screenshots**: `docs/screenshot*.png` are originals; settings screenshot
-   was removed because it contained a local engine path.
+4. **Release**: `v0.1.0` is published; `main` now contains the UI improvements
+   described above, so a `v0.1.1` tag/release is pending if desired.
 
 ## Handoff
 

@@ -19,11 +19,14 @@ Shift_JIS export text.
 - `main.js` — wiring, UI events, lifecycle, polling.
 - `shogi.js` — the only tsshogi adapter; legal moves, SFEN, jishogi helpers,
   editor validation.
-- `game-controller.js` — Record, clocks, results, undo, branch truncation.
+- `game-controller.js` — Record, clocks, results, undo, branch truncation,
+  pause/resume.
 - `clock-controller.js` — per-side byoyomi/increment clock.
-- `board-view.js` — DOM board/hands, highlights, coordinates.
+- `board-view.js` — DOM board/hands, highlights, coordinates, hand-tray order.
+- `mini-board.js` — read-only analysis board with the best-move highlight.
 - `engine-controller.js` — black/white engine turns and Ponder.
-- `analysis-controller.js` — live MultiPV and full-game scan.
+- `analysis-controller.js` — live MultiPV and full-game scan; keeps the last
+  output after Stop.
 - `eval-store.js` / `graph-view.js` — evaluations and SVG graph.
 - `batch-runner.js` — sequential EvE batch games, including per-role Ponder.
 - `options-form.js` — dynamic all-USI-options form; Restart stops and starts
@@ -41,8 +44,8 @@ exposes no debug surface.
 - `cli.py` — argparse; native child (`--native-host URL`) or parent; heartbeat
   and native watchdog.
 - `server.py` — routes and lifecycle:
-  - `GET /api/health`, `/api/config`, `/api/engine/status`,
-    `/api/engine/events`.
+  - `GET /api/health`, `/api/config`, `/api/info` (version + config path),
+    `/api/engine/status`, `/api/engine/events`.
   - `POST` engine probe/start/stop/newgame/setoption/go/ponderhit/
     stop-thinking; `/api/encode`; heartbeat/pagehide/native-ready/quit.
   - Static files with token injection and CSP.
@@ -80,13 +83,13 @@ Schema (abridged):
   },
   "analysis": {"multipv": 3, "scanMs": 500},
   "batch": {"games": 10, "swapColors": true, "startSfens": []},
-  "ui": {"flip": false, "coordinates": true}
+  "ui": {"flip": false, "coordinates": true, "theme": "classic"}
 }
 ```
 
 Options are strings, including `"true"`/`"false"` for check options. Relative
 engine paths are resolved against the config directory; runtime config is never
-packaged.
+packaged. Themes are `classic`, `dark`, `green`, or `paper`.
 
 ## USI flow
 
@@ -104,11 +107,14 @@ packaged.
 
 ## Lifecycle
 
-- Native: parent starts HTTP server, launches `--native-host` child, waits up to
-  15s for the page to call `/api/native-ready`; on failure kills child and opens
-  browser. Closing native window exits child; parent shuts down.
+- Native: parent starts HTTP server, launches `--native-host` child with
+  software OpenGL defaults on Linux, and waits up to 15s (exiting early if the
+  child dies) for the page to call `/api/native-ready`; on failure it kills the
+  child and opens the browser. Closing the native window exits the child; the
+  parent shuts down.
 - Browser: page calls `/api/heartbeat` every 5s; `pagehide` schedules a 5s
   shutdown; 120s without heartbeat also shuts down. Quit button calls
   `/api/quit`.
 - `/api/health` and static files are unauthenticated for smoke tests; all
-  mutable APIs require the random token and same-origin Host/Origin.
+  mutable APIs and `/api/info` require the random token and same-origin
+  Host/Origin.

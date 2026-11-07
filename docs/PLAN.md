@@ -21,10 +21,14 @@ page notifies the backend on exit and a heartbeat is a last-resort watchdog.
 - Every USI option is exposed through a dynamic form. `USI_Ponder` is used for
   standard `go ponder` / `ponderhit` / `stop` flow.
 - Per-side time settings. Each side chooses byoyomi or Fischer increment.
+- Pause/resume freezes clocks and engine turns without resetting the game.
 - Engine-vs-engine + batch games (color swap, start-SFEN cycling, CSV).
 - 24/27-point entering-king declaration and 24-point jishogi adjudication.
 - KIF/KI2/CSA import; KIF/KI2/CSA/SFEN export; UTF-8 and Shift_JIS output.
-- Position editor; evaluation graph; full-game analysis.
+- Position editor; evaluation graph; full-game analysis. Analysis keeps its last
+  lines, shows the best move on a mini board, and can play it on the board.
+- Traditional right-side hand trays; four themes; board fitted to the viewport.
+- The local config file path is shown in Settings.
 - Maximum moves configurable; 0 = unlimited.
 - No real engines, eval files, books, configs, logs, or absolute user paths in
   the repository or release artifacts.

@@ -34,13 +34,14 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "analysis": {"multipv": 3, "scanMs": 500},
     "batch": {"games": 10, "swapColors": True, "startSfens": []},
-    "ui": {"flip": False, "coordinates": True},
+    "ui": {"flip": False, "coordinates": True, "theme": "classic"},
 }
 
 LANGUAGES = {"auto", "en", "zh-CN", "ja"}
 MODES = {"pvp", "pve", "eve"}
 SIDES = {"black", "white"}
 JISHOGI_RULES = {"none", "general24", "general27"}
+THEMES = {"classic", "dark", "green", "paper"}
 ROLES = ("black", "white", "analysis")
 
 
@@ -176,6 +177,8 @@ def validate_config(cfg: Any) -> dict[str, Any]:
         raise ValueError("ui must be an object")
     if not isinstance(ui.get("flip"), bool) or not isinstance(ui.get("coordinates"), bool):
         raise ValueError("ui.flip and ui.coordinates must be booleans")
+    if ui.get("theme") not in THEMES:
+        raise ValueError("ui.theme must be classic, dark, green or paper")
     return cfg
 
 

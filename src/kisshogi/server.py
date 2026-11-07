@@ -217,6 +217,15 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/config":
                 self._json(HTTPStatus.OK, self.app.config)
                 return
+            if path == "/api/info":
+                self._json(
+                    HTTPStatus.OK,
+                    {
+                        "version": __version__,
+                        "configPath": str(self.app.config_path.expanduser().resolve()),
+                    },
+                )
+                return
             if path == "/api/engine/status":
                 self._json(HTTPStatus.OK, self.app.engines.status_all())
                 return

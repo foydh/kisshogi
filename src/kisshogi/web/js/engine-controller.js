@@ -40,7 +40,7 @@ export class EngineController {
       this.lastGameId = this.game.gameId;
       this.stopAllThinking();
     }
-    if (this.disabled || !this.game.autoPlay || this.game.result || !this.game.isLatest) {
+    if (this.disabled || this.game.paused || !this.game.autoPlay || this.game.result || !this.game.isLatest) {
       if (this.searching.black || this.searching.white || this.pondering.black || this.pondering.white) {
         this.stopAllThinking();
       }
@@ -50,7 +50,7 @@ export class EngineController {
   }
 
   sync() {
-    if (this.disabled || !this.game.autoPlay || this.game.result || !this.game.isLatest) return;
+    if (this.disabled || this.game.paused || !this.game.autoPlay || this.game.result || !this.game.isLatest) return;
     const color = this.game.currentColor;
     if (!this.game.isEngineTurn(color)) return;
     const role = roleFor(color);

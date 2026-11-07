@@ -81,6 +81,7 @@ export class AnalysisController {
       await this._startLive(token);
     } catch (err) {
       this.running = false;
+      if (token !== this.token) return;
       this.onStatus({ state: "error", error: err.message || String(err) });
     }
   }
@@ -123,8 +124,9 @@ export class AnalysisController {
     this.token += 1;
     clearTimeout(this.debounce);
     api.stopThinking("analysis").catch(() => {});
-    this.onStatus({ state: "ready" });
-    this.onLines(new Map());
+    // Keep the last emitted lines visible after stopping, like a normal
+    // analysis board.  A new live search clears them when it starts.
+    this.onStatus({ state: "stopped" });
   }
 
   _pollLive(token, sfen) {

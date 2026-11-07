@@ -3,7 +3,6 @@
 [English](README.md) · [日本語](README.ja.md)
 
 Kisshogi 是一款遵循 KISS 原则的小型将棋 GUI，面向本地对局与 USI 引擎测试。
-不使用 Electron、前端框架、数据库、WebSocket 或运行时 npm。
 
 ![Kisshogi 截图](docs/screenshot.png)
 
@@ -13,7 +12,11 @@ Kisshogi 是一款遵循 KISS 原则的小型将棋 GUI，面向本地对局与 
 - **黑白分别配置引擎**；动态展示全部 USI 选项（check/spin/combo/string/filename/button）。
 - 支持 **USI_Ponder**（`go ponder`、`ponderhit`、`stop`）。
 - 每方独立时间设置：主时间 + 秒読み，或主时间 + Fischer 增量；双方可用不同方式。
-- 引擎分析（MultiPV、实时 info、整局解析、SVG 评估曲线）。
+- 引擎分析（MultiPV、实时 info、整局解析、SVG 评估曲线）；停止后保留最后结果，
+  小棋盘显示最佳着法，并可直接走到主棋盘。
+- 暂停/恢复对局，计时不走。
+- 传统右侧驹台、四种主题、棋盘大小自适应。
+- 设置中显示本机配置文件路径。
 - KIF/KI2/CSA 读取；KIF/KI2/CSA/SFEN 导出；支持 UTF-8 与 Shift_JIS。
 - 局面编辑器（棋盘、持驹、手番、SFEN）。
 - 入玉宣言（24/27 点）与 24 点持将棋判定。
@@ -57,6 +60,8 @@ kisshogi
 ```
 
 原生窗口不可用时自动回退浏览器；`--native` 强制原生，失败会给出安装提示。
+Linux 下原生窗口默认使用软件 OpenGL，以便在虚拟机和远程桌面上也能运行；可设置
+`LIBGL_ALWAYS_SOFTWARE=0` 关闭。
 
 ## 运行与退出
 
@@ -64,7 +69,6 @@ kisshogi
 kisshogi                  # 原生窗口，失败回退浏览器
 kisshogi --browser        # 强制浏览器
 kisshogi --native         # 强制原生窗口
-kisshogi --no-browser     # 仅启动服务（CI/调试）
 ```
 
 关闭原生窗口即退出。浏览器模式下关闭标签页约 5 秒后退出；心跳兜底最多
@@ -87,25 +91,13 @@ kisshogi --no-browser     # 仅启动服务（CI/调试）
 
 ## 说明
 
-- 规则、SFEN、KIF/CSA 使用独立 MIT 库 tsshogi；未复制 ShogiHome 的 GUI 代码或素材。
+- 规则、SFEN、KIF/CSA 使用独立 MIT 库 tsshogi。
 - KIF/KI2/CSA 默认导出 UTF-8，也可选择 Shift_JIS；无法编码的字符会报错并提示改用 UTF-8。
 - 最大手数是和棋规则，不是 GUI 硬限制；设为 0 可关闭。
 - 批量对局把黑方槽作为引擎 A、白方槽作为引擎 B，交替交换黑白。
-- 仓库不包含真实引擎、评估文件、定迹或用户配置。
-
-## 开发
-
-```bash
-python3 -m venv --system-site-packages .venv
-source .venv/bin/activate
-pip install -e '.[dev,native]'
-python -m unittest discover -s tests -v
-node --test tests/js/*.test.mjs
-```
 
 ## 许可证与致谢
 
 代码 MIT；原创视觉/CSS 棋子/图标/截图 CC0-1.0；tsshogi MIT；Noto CJK 子集
 OFL-1.1；pywebview（可选）BSD 3-Clause。详见
 [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) 与 [ASSETS.md](ASSETS.md)。
-本项目与 ShogiHome 无隶属关系。

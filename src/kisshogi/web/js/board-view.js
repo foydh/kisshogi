@@ -46,10 +46,11 @@ export function squareName(square) {
 }
 
 export class BoardView {
-  constructor({ board, blackHand, whiteHand, coordinates }, { onSquare, onHand }) {
+  constructor({ board, blackHand, whiteHand, handStack, coordinates }, { onSquare, onHand }) {
     this.board = board;
     this.blackHand = blackHand;
     this.whiteHand = whiteHand;
+    this.handStack = handStack;
     this.coordinates = coordinates;
     this.onSquare = onSquare;
     this.onHand = onHand;
@@ -134,6 +135,7 @@ export class BoardView {
     this._renderHand(this.blackHand, position.hand(Color.BLACK), Color.BLACK, flip, state);
     this._renderHand(this.whiteHand, position.hand(Color.WHITE), Color.WHITE, flip, state);
     this.board.classList.toggle("flipped", flip);
+    this.handStack?.classList.toggle("flipped", flip);
   }
 
   _renderHand(el, hand, color, flip, state) {
@@ -149,6 +151,8 @@ export class BoardView {
       button.type = "button";
       button.className = `hand-piece ${color}`;
       button.dataset.hand = type;
+      const rotated = color === Color.BLACK ? flip : !flip;
+      if (rotated) button.classList.add("rotated");
       if (state.selectedHand === type && state.selectedHandColor === color) button.classList.add("selected");
       button.innerHTML = `<span class="hand-glyph">${pieceGlyph(type)}</span><span class="hand-count">${count}</span>`;
       button.setAttribute("aria-label", `${color} ${pieceGlyph(type)} ${count}`);

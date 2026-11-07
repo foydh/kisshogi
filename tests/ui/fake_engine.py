@@ -127,6 +127,20 @@ def main() -> int:
                 continue
             if " infinite" in line:
                 searching = True
+                # Static analysis lines are enough for UI checks: the first
+                # line is always a legal move in the standard start position.
+                for rank, (score, pv) in enumerate(
+                    (
+                        (35, "7g7f 3c3d 2g2f"),
+                        (20, "2g2f 8c8d 2f2e"),
+                        (10, "5g5f 3c3d 5f5e"),
+                    ),
+                    start=1,
+                ):
+                    send(
+                        f"info depth 12 seldepth 14 multipv {rank} score cp {score} "
+                        f"nodes 900 nps 4500 time 80 pv {pv}"
+                    )
                 continue
             searching = True
             move, predicted = bestmove_for(thinking_side, thinking_moves)

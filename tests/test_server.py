@@ -76,6 +76,13 @@ class ServerTest(unittest.TestCase):
         )
         self.assertEqual(status, 403)
 
+    def test_info(self):
+        status, data, _ = self.request("GET", "/api/info")
+        self.assertEqual(status, 200)
+        payload = json.loads(data)
+        self.assertTrue(payload["configPath"].endswith("config.json"))
+        self.assertIn("version", payload)
+
     def test_config_put(self):
         cfg = validate_config(DEFAULT_CONFIG)
         cfg["maxMoves"] = 123
