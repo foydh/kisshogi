@@ -54,11 +54,13 @@ restart, batch games with Ponder, and the Quit flow.
 - Batch EvE: color swap, start SFEN cycling, summary, CSV.
 - i18n en/zh-CN/ja; original CSS art; bundled Noto CJK subsets.
 - CI workflows and PyInstaller spec.
-- GitHub CI is green on Python 3.10/3.12 for Ubuntu and Windows, JavaScript, and
-  wheel/sdist. `v0.1.0` was published with browser-fallback binaries.
-- The release spec now bundles pywebview and prefers the native window. The
-  Linux onefile is ~48 MB, uses the system WebKitGTK shared libraries, and was
-  built and launched natively here; the browser remains the fallback.
+- GitHub CI is green on Python 3.10/3.12 for Ubuntu and Windows, JavaScript,
+  wheel/sdist, and native PyInstaller packages on Ubuntu 24.04 and Windows.
+- The release spec bundles pywebview and prefers the native window. The Linux
+  onefile is ~48 MB, uses the system WebKitGTK shared libraries, and was built
+  and launched natively here; the browser remains the fallback.
+- `v0.1.2` is the native-first release. `v0.1.1` on Linux bundled an older
+  GLib that conflicted with system WebKitGTK 4.1 and is superseded.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
@@ -87,9 +89,10 @@ restart, batch games with Ponder, and the Quit flow.
    Linux/Windows desktop.
 2. **Windows binary** is built by CI and packaged with pywebview/pythonnet, but
    has not been launched on Windows here.
-3. **Release**: `v0.1.1` packages the native-first binaries; `v0.1.0` remains
-   the browser-fallback release. Linux needs system PyGObject + WebKitGTK 4.1;
-   Windows needs the WebView2 runtime.
+3. **Release**: `v0.1.2` packages the native-first binaries; `v0.1.0`
+   remains the browser-fallback release. Linux needs system PyGObject +
+   WebKitGTK 4.1 and glibc 2.39+ (Ubuntu 24.04 build); Windows needs the
+   WebView2 runtime.
 
 ## Handoff
 

@@ -67,7 +67,9 @@ Linux のネイティブウィンドウは既定でソフトウェア OpenGL を
 リモートデスクトップでも動作します。`LIBGL_ALWAYS_SOFTWARE=0` で無効にできます。
 
 GitHub Release のバイナリは pywebview を同梱し、ネイティブウィンドウを優先します。
-Linux ではシステムの PyGObject / WebKitGTK 4.1、Windows では WebView2 を使用します。
+Linux ではシステムの PyGObject / WebKitGTK 4.1 を使用します（Ubuntu 24.04 で
+ビルドしているため、古いディストリビューションはソースからインストールしてください）。
+Windows では WebView2 を使用します。
 
 ## 起動と終了
 

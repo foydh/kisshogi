@@ -87,8 +87,9 @@ to opt out.
 
 The GitHub release binaries include pywebview and try the **native window
 first**, then fall back to the browser. On Linux the native window uses the
-system PyGObject and WebKitGTK 4.1 libraries. On Windows it uses the WebView2
-runtime.
+system PyGObject and WebKitGTK 4.1 libraries; the Linux binary is built on
+Ubuntu 24.04, so older distributions should install from source. On Windows it
+uses the WebView2 runtime.
 
 ## Run
 

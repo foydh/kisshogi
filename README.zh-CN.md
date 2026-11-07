@@ -64,7 +64,8 @@ Linux 下原生窗口默认使用软件 OpenGL，以便在虚拟机和远程桌�
 `LIBGL_ALWAYS_SOFTWARE=0` 关闭。
 
 GitHub Release 的二进制现在包含 pywebview，会优先打开原生窗口；Linux 使用系统
-PyGObject/WebKitGTK 4.1，Windows 使用 WebView2 运行时。
+PyGObject/WebKitGTK 4.1（二进制在 Ubuntu 24.04 上构建，较旧的发行版请从源码安装），
+Windows 使用 WebView2 运行时。
 
 ## 运行与退出
 
