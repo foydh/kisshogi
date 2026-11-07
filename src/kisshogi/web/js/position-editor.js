@@ -101,8 +101,19 @@ export class PositionEditor {
     });
   }
 
+  _setError(message) {
+    if (!this.el.error) return;
+    this.el.error.textContent = message || "";
+    this.el.error.classList.toggle("hidden", !message);
+  }
+
+  _clearError() {
+    this._setError("");
+  }
+
   open() {
     this.active = true;
+    this._clearError();
     this.position = this.game.position.clone();
     this.turn = this.position.color;
     this.el.toolbar.classList.remove("hidden");
@@ -113,6 +124,7 @@ export class PositionEditor {
 
   close() {
     this.active = false;
+    this._clearError();
     this.el.toolbar.classList.add("hidden");
     this.onClose?.();
   }
@@ -125,6 +137,7 @@ export class PositionEditor {
     }
     this.position = position;
     this.turn = position.color;
+    this._clearError();
     this._renderControls();
     this._syncSfen();
     this._renderBoard();
@@ -193,6 +206,7 @@ export class PositionEditor {
         input.value = String(count);
         input.addEventListener("change", () => {
           setHandCount(this.position, color, type, Number(input.value));
+          this._clearError();
           this._syncSfen();
           this._renderBoard();
           this._renderHands();
@@ -213,6 +227,7 @@ export class PositionEditor {
       if (this.promoted && isPromotable(type)) type = promotedPieceType(type);
       setBoardPiece(this.position, square, this.color, type);
     }
+    this._clearError();
     this._syncSfen();
     this._renderBoard();
   }
@@ -228,7 +243,9 @@ export class PositionEditor {
         dead_piece: "editor.invalidDeadPiece",
         invalid_hand: "editor.invalidHand",
       }[check.reason] || "editor.invalidSfen";
-      toast(t(key), "error");
+      const message = t(key);
+      this._setError(message);
+      toast(message, "error");
       return;
     }
     if (this.game.length > 0) {
@@ -236,6 +253,7 @@ export class PositionEditor {
       if (!ok) return;
     }
     if (!this.game.applySfen(this.position.sfen)) {
+      this._setError(t("editor.invalidSfen"));
       toast(t("editor.invalidSfen"), "error");
       return;
     }

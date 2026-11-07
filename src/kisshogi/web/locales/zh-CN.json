@@ -98,6 +98,8 @@
   "engine.path": "引擎路径",
   "engine.probe": "读取选项 / 测试",
   "engine.restart": "重启引擎",
+  "engine.restarting": "正在重启引擎...",
+  "engine.restarted": "已用保存的选项重启引擎。",
   "engine.options": "USI 选项",
   "engine.noOptions": "请先读取引擎选项。",
   "engine.status": "状态",

@@ -90,12 +90,34 @@ export class EngineOptionsPanel {
   }
 
   async restart(role) {
+    const card = this.cards[role];
+    const config = this.getConfig();
+    const path = card.querySelector(".engine-path").value.trim() || config.engines?.[role]?.path || "";
+    if (!path) {
+      toast(t("engine.clearPath"), "error");
+      return;
+    }
+    const statusLine = card.querySelector(".engine-status");
     try {
-      await api.stopEngine(role);
+      statusLine.textContent = t("engine.restarting");
+      await api.stopEngine(role).catch(() => {});
       this.definitions[role] = null;
-      const status = await api.engineStatus();
-      await this.refreshStatuses(status);
-      toast(t("engine.optionsSaved"), "ok");
+      await api.startEngine(role, path, config.engines?.[role]?.options || {});
+      const deadline = Date.now() + 60000;
+      let status = null;
+      while (Date.now() < deadline) {
+        const statuses = await api.engineStatus();
+        status = statuses[role];
+        if (status?.state === "ready") break;
+        if (status?.state === "error") throw new Error(status.error || "engine error");
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+      if (status?.state !== "ready") throw new Error("engine start timed out");
+      this.definitions[role] = status.options || [];
+      this.renderOptions(role);
+      await this.refreshStatuses(await api.engineStatus());
+      this.onStatusChanged(role, status);
+      toast(t("engine.restarted"), "ok");
     } catch (err) {
       toast(t("engine.startError", { message: err.message }), "error");
     }

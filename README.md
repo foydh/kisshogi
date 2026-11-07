@@ -108,8 +108,9 @@ immediately. `Ctrl+C` in the terminal always works.
    also accepted.
 3. Click **Read options / test**. Kisshogi starts the engine briefly, verifies
    `isready`, and lists every USI option.
-4. Edit the options. Non-button changes take effect after restarting the
-   engine; button options can be executed immediately.
+4. Edit the options. Non-button changes take effect when you press
+   **Restart engine**, which stops and starts the engine with the saved
+   options; button options can be executed immediately.
 5. Select a mode and press **New game**.
 
 Engine paths and options are stored only in the local user config
@@ -120,6 +121,7 @@ release artifacts.
 `USI_Ponder` is just another option. Set it to `true` if the engine supports
 pondering. Kisshogi sends `go ponder`, then `ponderhit` when the predicted move
 is played, or `stop` on a mismatch. Ponder time is not charged to the clock.
+Batch games use the same ponder flow when `USI_Ponder` is enabled.
 
 ## Notes
 

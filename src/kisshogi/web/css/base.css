@@ -133,6 +133,7 @@ details.group[open] summary { margin-bottom: 8px; }
 .editor-hands { display: grid; gap: 6px; margin-bottom: 8px; }
 .editor-hand-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 12px; }
 .editor-hand-row input { width: 52px; }
+.editor-error { margin: 0 0 8px; padding: 6px 8px; border-radius: 6px; background: #fdecea; color: #8a1c12; font-size: 12px; }
 .muted.small { font-size: 12px; color: var(--muted); }
 .error-text { color: var(--danger); }
 .ok-text { color: var(--green); }

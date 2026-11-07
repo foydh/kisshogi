@@ -98,6 +98,8 @@
   "engine.path": "エンジンのパス",
   "engine.probe": "オプション読込 / テスト",
   "engine.restart": "エンジン再起動",
+  "engine.restarting": "エンジンを再起動中...",
+  "engine.restarted": "保存したオプションでエンジンを再起動しました。",
   "engine.options": "USI オプション",
   "engine.noOptions": "先にエンジンオプションを読み込んでください。",
   "engine.status": "状態",

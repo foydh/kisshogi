@@ -98,6 +98,8 @@
   "engine.path": "Engine path",
   "engine.probe": "Read options / test",
   "engine.restart": "Restart engine",
+  "engine.restarting": "Restarting engine...",
+  "engine.restarted": "Engine restarted with the saved options.",
   "engine.options": "USI options",
   "engine.noOptions": "Read the engine options first.",
   "engine.status": "Status",

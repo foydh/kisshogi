@@ -564,6 +564,7 @@ function setupEditor() {
       toolbar: $("#editorToolbar"),
       palette: $("#editorPalette"),
       hands: $("#editorHands"),
+      error: $("#editorError"),
       sfen: $("#editorSfen"),
       promote: $("#editorPromote"),
       standard: $("#editorStandard"),
@@ -928,11 +929,15 @@ async function init() {
   renderBatch();
   initialized = true;
   api.nativeReady().catch(() => {});
-  window.__kisshogiDebug = {
-    get engine() { return engine; },
-    get game() { return game; },
-    get config() { return config; },
-  };
+  // Local UI tests need a stable handle on the controllers.  Keep it opt-in
+  // so a normal launch exposes no debug surface.
+  if (new URLSearchParams(window.location.search).has("debug")) {
+    window.__kisshogiDebug = {
+      get engine() { return engine; },
+      get game() { return game; },
+      get config() { return config; },
+    };
+  }
 }
 
 init().catch((err) => {

@@ -15,6 +15,8 @@
 - `.venv` was created with `--system-site-packages` so PyGObject is visible.
 - Native extra and dev tools are installed in `.venv`.
 - Playwright Chromium is under `.playwright-browsers/` and is gitignored.
+- `tests/ui/fake_engine.py` is the deterministic USI test double for browser
+  checks; it needs an executable bit and a POSIX shebang.
 - A local Nagisa engine was used only for manual/UI testing. Do not add its path
   to tracked files; use an environment variable or local config.
 - The container's pywebview/WebKit fails due MESA/DRM; native launch falls back
@@ -26,21 +28,26 @@
 source .venv/bin/activate
 python -m unittest discover -s tests -v
 node --test tests/js/*.test.mjs
+PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers" python scripts/ui_check.py
 python scripts/smoke.py dist/kisshogi
 python -m kisshogi --browser
 python -m kisshogi --no-browser --port 8765
 ```
 
+The debug handle `window.__kisshogiDebug` exists only when the page is opened
+with `?debug` (used by `scripts/ui_check.py`).
+
 ## Immediate next steps
 
-1. The local repository is initialized on `main` with commit `14d2e65`.
-   Create `foydh/kisshogi` on GitHub, add the remote, push, and verify CI.
+1. Push `main` to `foydh/kisshogi` (the remote exists but was empty), then
+   verify the CI workflow. The repository is otherwise ready for a new session.
 2. Run the release workflow by pushing `v0.1.0`; inspect wheel, sdist and both
-   binaries.
-3. Decide native release packaging (Windows native is the best candidate).
-4. Add batch Ponder if required.
-5. Add Playwright tests for jishogi UI, editor apply, and options restart.
-6. Remove/gate `window.__kisshogiDebug`.
+   binaries. See `RELEASE.md` for the packaging decision.
+3. Decide whether to add a separate native Windows bundle (WebView2/pythonnet);
+   the current onefile binaries intentionally use the browser fallback.
+4. Validate the native pywebview window and the Windows binary on real
+   desktops; this sandbox cannot do either.
+5. Optional polish: refresh screenshots after the UI changes.
 
 ## Important constraints
 

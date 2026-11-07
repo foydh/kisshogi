@@ -25,14 +25,16 @@ Shift_JIS export text.
 - `engine-controller.js` — black/white engine turns and Ponder.
 - `analysis-controller.js` — live MultiPV and full-game scan.
 - `eval-store.js` / `graph-view.js` — evaluations and SVG graph.
-- `batch-runner.js` — sequential EvE batch games.
-- `options-form.js` — dynamic all-USI-options form.
-- `position-editor.js` — local Position edit/apply.
+- `batch-runner.js` — sequential EvE batch games, including per-role Ponder.
+- `options-form.js` — dynamic all-USI-options form; Restart stops and starts
+  the engine so saved options take effect.
+- `position-editor.js` — local Position edit/apply with inline validation.
 - `record-panel` logic lives in `main.js`; `kifu.js` handles formats/encoding.
 - `dialogs.js`, `i18n.js`, `api.js` — UI helpers.
 
-`window.__kisshogiDebug` is a temporary local hook used by Playwright checks:
-it exposes `game`, `engine`, and `config`. Remove/gate it before public release.
+`window.__kisshogiDebug` exposes `game`, `engine`, and `config` only when the
+page is opened with `?debug`. `scripts/ui_check.py` uses it; a normal launch
+exposes no debug surface.
 
 ## Backend modules
 
@@ -94,7 +96,9 @@ packaged.
 - Normal search: `position ...` then `go btime ... wtime ... byoyomi ...` or
   `go ... binc ... winc ...`; events are polled by sequence number.
 - Ponder: `go ponder`; on opponent move match `ponderhit`, otherwise `stop`.
-  Ponder time does not count; clock arms on `ponderhit`.
+  Ponder time does not count; clock arms on `ponderhit`. Batch games keep one
+  pending ponder per role, so both engines may ponder while the opponent
+  searches; a game end stops any remaining ponder.
 - Black/White/Analysis sessions are independent. Analysis falls back to the
   White slot, then Black, when its path is empty.
 
