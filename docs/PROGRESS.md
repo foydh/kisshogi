@@ -79,9 +79,9 @@ restart, batch games with Ponder, and the Quit flow.
   impasse, pause + theme + config path, analysis mode, analysis panel, options
   restart, batch Ponder, Quit).
 - `python scripts/smoke.py dist/kisshogi`: OK.
-- Pre-1.0 Linux artifacts were downloaded and verified (native window and
-  portable smoke). The `v1.0.0` release keeps the same two-variant packaging
-  and is re-verified after publication.
+- `v1.0.0` Linux native and portable artifacts were downloaded and verified:
+  smoke OK, the native window stayed up (software OpenGL), and the portable
+  build correctly has no native window.
 - Playwright UI checks use `tests/ui/fake_engine.py`, a deterministic USI test
   double that follows a fixed legal opening and logs protocol traffic.
 - Native launch in this container stays up with software OpenGL enabled by the
