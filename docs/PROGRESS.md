@@ -81,6 +81,9 @@ restart, batch games with Ponder, and the Quit flow.
 - `v1.0.0` Linux native and portable artifacts were downloaded and verified:
   smoke OK, the native window stayed up (software OpenGL), and the portable
   build correctly has no native window.
+- `v1.0.1` portable asset was downloaded and checked: version 1.0.1, Lines is
+  the default theme option, the 蓝色/紫色/线条 labels are present, and the
+  export hint code is included.
 - Playwright UI checks use `tests/ui/fake_engine.py`, a deterministic USI test
   double that follows a fixed legal opening and logs protocol traffic.
 - Native launch in this container stays up with software OpenGL enabled by the

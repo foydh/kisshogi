@@ -41,7 +41,9 @@ publishes a GitHub release.
   - `windows-x86_64` native
   - `windows-x86_64-portable` browser-only
 - The released Linux native and portable artifacts for v1.0.0 were downloaded
-  and verified; the v1.0.1 build uses the same packaging.
+  and verified. The `v1.0.1` portable artifact was re-checked after publication
+  (version, Lines default, 蓝色/紫色/线条 labels, export hint); native uses the
+  same packaging.
 
 ## Packaging decision (1.0.0)
 
