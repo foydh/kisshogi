@@ -60,13 +60,13 @@ class ConfigTest(unittest.TestCase):
         self.assertEqual(json.loads(json.dumps(cfg))["mode"], "analysis")
 
     def test_theme(self):
-        self.assertEqual(validate_config({})["ui"]["theme"], "classic")
+        self.assertEqual(validate_config({})["ui"]["theme"], "lines")
         self.assertEqual(validate_config({"ui": {"theme": "dark"}})["ui"]["theme"], "dark")
-        self.assertEqual(validate_config({"ui": {"theme": "neon"}})["ui"]["theme"], "neon")
-        self.assertEqual(
-            validate_config({"ui": {"theme": "constructivist"}})["ui"]["theme"],
-            "constructivist",
-        )
+        self.assertEqual(validate_config({"ui": {"theme": "blue"}})["ui"]["theme"], "blue")
+        # Pre-1.0 theme names migrate to their new equivalents.
+        self.assertEqual(validate_config({"ui": {"theme": "neon"}})["ui"]["theme"], "blue")
+        self.assertEqual(validate_config({"ui": {"theme": "cyber"}})["ui"]["theme"], "purple")
+        self.assertEqual(validate_config({"ui": {"theme": "classic"}})["ui"]["theme"], "lines")
         with self.assertRaises(ValueError):
             validate_config({"ui": {"theme": "vaporwave"}})
 

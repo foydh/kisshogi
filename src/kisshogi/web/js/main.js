@@ -154,7 +154,7 @@ function updateModeBadge() {
 }
 
 function applyTheme() {
-  const theme = config?.ui?.theme || "classic";
+  const theme = config?.ui?.theme || "lines";
   document.body.dataset.theme = theme;
   const select = $("#themeSelect");
   if (select) select.value = theme;
@@ -614,7 +614,7 @@ function syncSettings() {
   $("#batchGames").value = String(config.batch?.games ?? 10);
   $("#batchSwap").checked = config.batch?.swapColors !== false;
   $("#batchSfens").value = (config.batch?.startSfens || []).join("\n");
-  $("#themeSelect").value = config.ui?.theme || "classic";
+  $("#themeSelect").value = config.ui?.theme || "lines";
   $("#analysisAuto").checked = true;
 }
 
@@ -727,7 +727,7 @@ async function doExport() {
   const filename = `kisshogi-${stamp.getFullYear()}${pad(stamp.getMonth() + 1)}${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}.${ext}`;
   try {
     await exportRecord(game.record, format, encoding, filename);
-    toast(t("record.exported"), "ok");
+    toast(t("record.exportedTo", { filename }), "ok");
   } catch (err) {
     toast(t("toast.exportError", { message: err.message }), "error");
   }
@@ -983,8 +983,8 @@ function bindUi() {
 
 async function init() {
   config = await api.config();
-  config.ui ||= { flip: false, coordinates: true, theme: "classic" };
-  if (!config.ui.theme) config.ui.theme = "classic";
+  config.ui ||= { flip: false, coordinates: true, theme: "lines" };
+  if (!config.ui.theme) config.ui.theme = "lines";
   config.analysis ||= { multipv: 3, scanMs: 500 };
   config.batch ||= { games: 10, swapColors: true, startSfens: [] };
   applyTheme();

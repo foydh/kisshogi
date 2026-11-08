@@ -28,9 +28,9 @@ page notifies the backend on exit and a heartbeat is a last-resort watchdog.
 - KIF/KI2/CSA import; KIF/KI2/CSA/SFEN export; UTF-8 and Shift_JIS output.
 - Position editor; evaluation graph; full-game analysis. Analysis keeps its last
   lines, shows the best move on a mini board, and can play it on the board.
-- Hand trays on each player's right (white left, black right); seven themes
-  (classic, dark, green, paper, neon, cyber, constructivist); board fitted to
-  the viewport.
+- Hand trays on each player's right (white left, black right); six themes
+  (lines by default, dark, green, paper, blue, purple); board fitted to the
+  viewport.
 - The local config file path is shown in Settings.
 - Maximum moves configurable; 0 = unlimited.
 - No real engines, eval files, books, configs, logs, or absolute user paths in

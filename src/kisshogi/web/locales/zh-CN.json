@@ -197,7 +197,6 @@
   "settings.configPath": "配置文件",
   "settings.copyPath": "复制路径",
   "settings.theme": "主题",
-  "theme.classic": "经典",
   "theme.dark": "深色",
   "theme.green": "绿色",
   "theme.paper": "纸白",
@@ -207,7 +206,8 @@
   "batch.moves": "手数",
   "mode.analysis": "分析",
   "time.analysisMode": "不计时",
-  "theme.neon": "霓虹",
-  "theme.cyber": "赛博",
-  "theme.constructivist": "构成主义"
+  "theme.blue": "蓝色",
+  "theme.purple": "紫色",
+  "theme.lines": "线条",
+  "record.exportedTo": "已导出到浏览器下载目录：{filename}"
 }

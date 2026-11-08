@@ -197,7 +197,6 @@
   "settings.configPath": "設定ファイル",
   "settings.copyPath": "パスをコピー",
   "settings.theme": "テーマ",
-  "theme.classic": "クラシック",
   "theme.dark": "ダーク",
   "theme.green": "グリーン",
   "theme.paper": "ペーパー",
@@ -207,7 +206,8 @@
   "batch.moves": "手数",
   "mode.analysis": "解析",
   "time.analysisMode": "時計なし",
-  "theme.neon": "ネオン",
-  "theme.cyber": "サイバー",
-  "theme.constructivist": "構成主義"
+  "theme.blue": "ブルー",
+  "theme.purple": "パープル",
+  "theme.lines": "ライン",
+  "record.exportedTo": "ブラウザのダウンロードフォルダに出力しました：{filename}"
 }

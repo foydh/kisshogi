@@ -43,6 +43,8 @@ The script starts the real server with a temporary config and uses
 fixed legal opening and logs its protocol traffic. It opens the page with
 `?debug` to reach `window.__kisshogiDebug`.
 
+Current result: 11 UI checks pass.
+
 Covered checks:
 - Layout at 1280x800, 1366x768, and 1600x900: no page scroll, board fits,
   hands sit on each player's right side, and pieces use the SVG shogi
@@ -55,12 +57,14 @@ Covered checks:
 - Pause/resume: the clock stops without resetting, moves are still allowed,
   and the button label toggles.
 - Analysis mode: no running clock and moves are allowed on both sides.
-- Settings: config path, all seven theme switches (persisted), coordinates.
+- Settings: config path, all six theme switches (persisted), coordinates.
 - Analysis: Analyze/Stop toggle, three lines, mini board, output kept after
   stop, and playing the best move onto the board.
 - Engine options: probe, edit `Threads`, Restart (stop + start), applied
   options, persisted config, and received `setoption` traffic.
 - Batch game with Ponder: result table, `go ponder`, and `ponderhit`.
+- Export: the filename is shown in the success message together with the
+  browser download folder hint.
 - Quit: stopped overlay appears and no false "server not responding" toast.
 
 These checks need a POSIX executable fake engine (Linux/macOS). The previous

@@ -197,7 +197,6 @@
   "settings.configPath": "Configuration file",
   "settings.copyPath": "Copy path",
   "settings.theme": "Theme",
-  "theme.classic": "Classic",
   "theme.dark": "Dark",
   "theme.green": "Green",
   "theme.paper": "Paper",
@@ -207,7 +206,8 @@
   "batch.moves": "Moves",
   "mode.analysis": "Analysis",
   "time.analysisMode": "No clock",
-  "theme.neon": "Neon",
-  "theme.cyber": "Cyber",
-  "theme.constructivist": "Constructivist"
+  "theme.blue": "Blue",
+  "theme.purple": "Purple",
+  "theme.lines": "Lines",
+  "record.exportedTo": "Exported to the browser download folder: {filename}"
 }

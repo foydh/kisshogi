@@ -4,7 +4,7 @@
 
 - Target: `foydh/kisshogi`.
 - Default branch: `main`.
-- Current release: `v1.0.0` (first formal release; native and portable variants).
+- Stable releases: `v1.0.0`, `v1.0.1`. Formal releases are kept, not deleted.
 - All pre-1.0 releases and tags (`v0.1.0`-`v0.1.3`) were removed.
 
 ## Git setup (local only)
@@ -23,8 +23,8 @@ git push -u origin main
 ## Release
 
 ```bash
-git tag -a v1.0.0 -m "Kisshogi 1.0.0"
-git push origin v1.0.0
+git tag -a v1.0.1 -m "Kisshogi 1.0.1"
+git push origin v1.0.1
 ```
 
 `.github/workflows/release.yml` verifies the tag, builds wheel/sdist, builds
@@ -33,15 +33,15 @@ publishes a GitHub release.
 
 ## Status
 
-- `v1.0.0` is the only published release. Assets: wheel, sdist, and four
-  binaries:
+- `v1.0.1` is the current release (theme naming/default, export hint).
+- `v1.0.0` is kept as the first formal release.
+- Both ship wheel, sdist, and four binaries:
   - `linux-x86_64` native (~48 MB, 34 MB compressed)
   - `linux-x86_64-portable` browser-only (~8 MB, 6.7 MB compressed)
   - `windows-x86_64` native
   - `windows-x86_64-portable` browser-only
-- The released Linux native and portable artifacts were downloaded and
-  verified; the native window stayed up and the portable build correctly has
-  no native window.
+- The released Linux native and portable artifacts for v1.0.0 were downloaded
+  and verified; the v1.0.1 build uses the same packaging.
 
 ## Packaging decision (1.0.0)
 

@@ -84,13 +84,15 @@ Schema (abridged):
   },
   "analysis": {"multipv": 3, "scanMs": 500},
   "batch": {"games": 10, "swapColors": true, "startSfens": []},
-  "ui": {"flip": false, "coordinates": true, "theme": "classic"}
+  "ui": {"flip": false, "coordinates": true, "theme": "lines"}
 }
 ```
 
 Options are strings, including `"true"`/`"false"` for check options. Relative
 engine paths are resolved against the config directory; runtime config is never
-packaged. Themes are `classic`, `dark`, `green`, or `paper`.
+packaged. Themes are `lines` (default), `dark`, `green`, `paper`, `blue`,
+or `purple`. Old configs using `classic`, `neon`, `cyber`, or
+`constructivist` are migrated on load.
 
 ## USI flow
 

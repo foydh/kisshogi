@@ -379,13 +379,13 @@ def check_pause_theme_and_config_path(browser) -> None:
             page.click('.tab[data-tab="settings"]')
             config_path = page.text_content("#configPath") or ""
             assert config_path.endswith("config.json"), config_path
-            expect(page.locator("#themeSelect")).to_have_value("classic")
+            expect(page.locator("#themeSelect")).to_have_value("lines")
             page.select_option("#themeSelect", "dark")
             page.wait_for_function("() => document.body.dataset.theme === 'dark'", timeout=5000)
             wait_config(server, lambda cfg: cfg.get("ui", {}).get("theme") == "dark")
             page.select_option("#themeSelect", "green")
             page.wait_for_function("() => document.body.dataset.theme === 'green'", timeout=5000)
-            for theme in ("paper", "neon", "cyber", "constructivist"):
+            for theme in ("paper", "blue", "purple", "lines"):
                 page.select_option("#themeSelect", theme)
                 page.wait_for_function(
                     "(name) => document.body.dataset.theme === name",
@@ -527,6 +527,27 @@ def check_batch_ponder(browser) -> None:
             assert "go ponder" in traffic, traffic
             assert "ponderhit" in traffic, traffic
             assert traffic.count("go ponder") >= 2, traffic
+            assert_clean(session)
+        finally:
+            session.close()
+
+
+@check
+def check_export_hint(browser) -> None:
+    with AppServer(base_config(mode="analysis")) as server:
+        session = PageSession(browser, server)
+        page = session.page
+        try:
+            page.click('.tab[data-tab="record"]')
+            with page.expect_download(timeout=10000) as info:
+                page.click("#exportBtn")
+            download = info.value
+            filename = download.suggested_filename
+            assert filename.startswith("kisshogi-") and filename.endswith(".kif"), filename
+            page.wait_for_timeout(300)
+            toast = page.text_content("#toast") or ""
+            assert filename in toast, toast
+            assert "download folder" in toast, toast
             assert_clean(session)
         finally:
             session.close()

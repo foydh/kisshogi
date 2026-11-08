@@ -21,8 +21,8 @@ play and USI engine testing.
   best move on a mini board, and can play that move onto the main board.
 - Pause/resume the clock without freezing the board; moves are still allowed
   while the clock is paused.
-- Hand trays on each player's right side (white left, black right) and seven
-  UI themes: classic, dark, green, paper, neon, cyber, and constructivist.
+- Hand trays on each player's right side (white left, black right) and six UI
+  themes: lines (default), dark, green, paper, blue, and purple.
 - The settings panel shows the local configuration file path.
 - KIF / KI2 / CSA import; UTF-8/Shift_JIS input; KIF / KI2 / CSA / SFEN export
   in UTF-8 or Shift_JIS.

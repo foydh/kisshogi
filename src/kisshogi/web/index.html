@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/css/board.css">
   <link rel="stylesheet" href="/css/panels.css">
 </head>
-<body>
+<body data-theme="lines">
 <svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
   <defs>
     <clipPath id="piece-shape" clipPathUnits="objectBoundingBox">
@@ -245,13 +245,12 @@
         <div class="field-grid two">
           <label><span data-i18n="settings.theme">Theme</span>
             <select id="themeSelect" class="select">
-              <option value="classic" data-i18n="theme.classic">Classic</option>
+              <option value="lines" data-i18n="theme.lines">Lines</option>
               <option value="dark" data-i18n="theme.dark">Dark</option>
               <option value="green" data-i18n="theme.green">Green</option>
               <option value="paper" data-i18n="theme.paper">Paper</option>
-              <option value="neon" data-i18n="theme.neon">Neon</option>
-              <option value="cyber" data-i18n="theme.cyber">Cyber</option>
-              <option value="constructivist" data-i18n="theme.constructivist">Constructivist</option>
+              <option value="blue" data-i18n="theme.blue">Blue</option>
+              <option value="purple" data-i18n="theme.purple">Purple</option>
             </select>
           </label>
           <label class="inline-check"><input id="coordinatesToggle" type="checkbox"> <span data-i18n="settings.coordinates">Show coordinates</span></label>

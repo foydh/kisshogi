@@ -34,14 +34,20 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "analysis": {"multipv": 3, "scanMs": 500},
     "batch": {"games": 10, "swapColors": True, "startSfens": []},
-    "ui": {"flip": False, "coordinates": True, "theme": "classic"},
+    "ui": {"flip": False, "coordinates": True, "theme": "lines"},
 }
 
 LANGUAGES = {"auto", "en", "zh-CN", "ja"}
 MODES = {"analysis", "pvp", "pve", "eve"}
 SIDES = {"black", "white"}
 JISHOGI_RULES = {"none", "general24", "general27"}
-THEMES = {"classic", "dark", "green", "paper", "neon", "cyber", "constructivist"}
+THEMES = {"dark", "green", "paper", "blue", "purple", "lines"}
+THEME_ALIASES = {
+    "classic": "lines",
+    "neon": "blue",
+    "cyber": "purple",
+    "constructivist": "lines",
+}
 ROLES = ("black", "white", "analysis")
 
 
@@ -177,8 +183,10 @@ def validate_config(cfg: Any) -> dict[str, Any]:
         raise ValueError("ui must be an object")
     if not isinstance(ui.get("flip"), bool) or not isinstance(ui.get("coordinates"), bool):
         raise ValueError("ui.flip and ui.coordinates must be booleans")
-    if ui.get("theme") not in THEMES:
-        raise ValueError("ui.theme must be classic, dark, green or paper")
+    theme = THEME_ALIASES.get(ui.get("theme"), ui.get("theme"))
+    if theme not in THEMES:
+        raise ValueError("ui.theme must be dark, green, paper, blue, purple or lines")
+    ui["theme"] = theme
     return cfg
 
 

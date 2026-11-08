@@ -40,8 +40,8 @@ restart, batch games with Ponder, and the Quit flow.
 - Hand trays on each player's right side (white top-left, black bottom-right);
   traditional shogi-piece silhouette; black king 玉 / white king 王; board sized
   to fit the viewport at 1280x800/1366x768/1600x900 without page scrolling.
-- Seven themes (classic, dark, green, paper, neon, cyber, constructivist),
-  persisted in the local config.
+- Six themes (lines by default, dark, green, paper, blue, purple), persisted in
+  the local config.
 - The settings panel shows the local config file path and can copy it.
 - Quit shows a clean stopped overlay instead of a false "server not responding"
   toast after the server has already shut down.
@@ -61,11 +61,10 @@ restart, batch games with Ponder, and the Quit flow.
 - The release spec bundles pywebview and prefers the native window. The Linux
   onefile is ~48 MB, uses the system WebKitGTK shared libraries, and was built
   and launched natively here; the browser remains the fallback.
-- `v1.0.0` is the first formal release: native-first and `-portable`
-  browser-only artifacts for Linux and Windows. The Linux native binary is
-  built on Ubuntu 24.04 with WebKitGTK 4.1; Windows uses WebView2.
-- All pre-1.0 releases and tags were removed; `v1.0.0` is the only published
-  release.
+- `v1.0.0` is the first formal release; `v1.0.1` is the current patch with
+  the Lines default theme, renamed Blue/Purple themes, and the export hint.
+  Both are kept.
+- All pre-1.0 releases and tags were removed.
 - Screenshots in `docs/`.
 - `window.__kisshogiDebug` is opt-in via the `?debug` query string.
 
@@ -75,9 +74,9 @@ restart, batch games with Ponder, and the Quit flow.
 - `node --test tests/js/*.test.mjs`: 32 tests, OK. This includes pause/resume,
   analysis mode, and batch Ponder hit and miss paths with a mocked USI API.
 - `PLAYWRIGHT_BROWSERS_PATH="$PWD/.playwright-browsers" python scripts/ui_check.py`:
-  10 checks, OK (layout/scroll, editor apply + inline validation, declaration,
-  impasse, pause + theme + config path, analysis mode, analysis panel, options
-  restart, batch Ponder, Quit).
+  11 checks, OK (layout/scroll, editor apply + inline validation, declaration,
+  impasse, pause + themes + config path, analysis mode, analysis panel, options
+  restart, batch Ponder, export hint, Quit).
 - `python scripts/smoke.py dist/kisshogi`: OK.
 - `v1.0.0` Linux native and portable artifacts were downloaded and verified:
   smoke OK, the native window stayed up (software OpenGL), and the portable
@@ -94,7 +93,7 @@ restart, batch games with Ponder, and the Quit flow.
    Linux/Windows desktop.
 2. **Windows binary** is built by CI and packaged with pywebview/pythonnet, but
    has not been launched on Windows here.
-3. **Release**: `v1.0.0` is the only release, with native and portable
+3. **Release**: `v1.0.0` and `v1.0.1` are kept, with native and portable
    variants. Linux native needs system PyGObject + WebKitGTK 4.1 and glibc
    2.39+ (Ubuntu 24.04 build); Windows native needs the WebView2 runtime.
 
